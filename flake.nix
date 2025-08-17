@@ -50,7 +50,7 @@
             useGlobalPkgs = true;
             useUserPackages = true;
             users.${userSettings.username}.imports = [
-              ./users/home/${userSettings.username}.nix
+              ./home/users/${userSettings.username}.nix
               nvf.homeManagerModules.default
               {
                 wayland.windowManager.hyprland = {
