@@ -25,6 +25,12 @@ in {
         lazy = true;
         event = [ {event = "User"; pattern = "LazyFile";} ];
       };
+
+      ${toggleterm-nvim.pname} = {
+        package = toggleterm-nvim;
+        lazy = true;
+        event = [ {event = "User"; pattern = "LazyFile";} ];
+      };
     };
   };
 }

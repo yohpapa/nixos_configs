@@ -15,6 +15,7 @@ in {
     ./nvf/nvf-lazy.nix
     ./nvf/nvf-languages.nix
     ./nvf/nvf-autocomplete.nix
+    ./nvf/nvf-toggleterm.nix
   ];
 
   # NOTE: https://notashelf.github.io/nvf/options.html
