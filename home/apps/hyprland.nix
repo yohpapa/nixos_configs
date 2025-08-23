@@ -19,10 +19,10 @@ in {
         "XDG_SCREENSHOTS_DIR,$HOME/screens"
       ];
 
-      monitor=",preferred,auto,auto";
+      monitor = ",preferred,auto,auto";
+
+      # variables
       "$mainMod" = "SUPER";
-      # "$terminal" = "alacritty";
-      # "$terminal" = "kitty";
       "$terminal" = "ghostty";
       # "$fileManager" = "$terminal -e sh -c 'ranger'";
       "$menu" = "rofi";

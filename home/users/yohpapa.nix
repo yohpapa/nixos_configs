@@ -20,6 +20,7 @@ in {
     starship
     zsh-history-substring-search
     disfetch
+    lazygit
 
     # wayland tools
     waybar
