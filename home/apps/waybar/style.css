@@ -1,0 +1,36 @@
+* {
+  font-family: "Liberation Sans", "Font Awesome 6 Free", "Font Awesome 6 Brands"; 
+  border: none;
+  border-radius: 0px;
+}
+
+window#waybar {
+  font-family: inherit;
+  background: transparent;
+  border-bottom: 0px solid #ffffff;
+  color: #FFFFFF;
+  transition-property: background-color;
+  transition-duration: .5s;
+}
+
+#keyboard-state,
+#window,
+#workspaces,
+#pulseaudio,
+#cpu,
+#memory,
+#clock,
+#tray {
+  font-size: 12px;
+  margin: 3px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: none;
+  color: #ffffff;
+  background: rgba(56, 60, 74, 0.5);
+}
+

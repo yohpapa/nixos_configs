@@ -29,8 +29,26 @@ in {
 
       bind = [
         "$mainMod SHIFT, Return, exec, $terminal"
-        "$mainMod,       D, exec, $menu -show drun"
+        "$mainMod      ,      D, exec, $menu -show drun"
+        "$mainMod SHIFT,      B, exec, pkill waybar && waybar"
       ];
+
+      # TODD:
+      # bindm = [
+      #   "$mainMod,    R,         resize"
+      # ];
+      #
+      # submaps = {
+      #   "resize" = {
+      #     bind = [
+      #       ", h,      resizeactive, -10 0"
+      #       ", l,      resizeactive, 10 0"
+      #       ", j,      resizeactive, 0 -10"
+      #       ", k,      resizeactive, 0 10"
+      #       ", Escape, submap,       reset"
+      #     ];
+      #   };
+      # };
 
       decoration = {
         rounding = 5;
@@ -56,8 +74,8 @@ in {
       };
 
       exec-once = [
-        "nm-applet"
         "waybar"
+        "nm-applet --indicator"
       ];
     };
   };

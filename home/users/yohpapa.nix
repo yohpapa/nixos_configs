@@ -27,9 +27,9 @@ in {
     # mako
     # swww
     # hyprlock
-    # pavucontrol
+    pavucontrol
     rofi-wayland
-    # networkmanagerapplet
+    networkmanagerapplet
     ghostty
     # swaync
     # hypridle
