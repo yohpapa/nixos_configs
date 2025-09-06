@@ -71,14 +71,23 @@
     # CLI tools
     bat
     btop
+    clang
     disfetch
     eza
+    fd
     fzf
     git
+    gnumake
     lazygit
     neovim
-    # starship
+    nodePackages.npm
+    python3Full
+    ripgrep
+    starship
     tmux
+    stow
+    stylua
+    unzip
     vim
     zoxide
     zsh-history-substring-search
@@ -200,6 +209,14 @@
   hardware = {
     graphics.enable = true;
     nvidia.modesetting.enable = true;
+  };
+
+  # https://nix.dev/guides/faq#how-to-run-non-nix-executables
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      lua-language-server 
+    ];
   };
  
   # Open ports in the firewall.
