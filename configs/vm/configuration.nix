@@ -5,7 +5,7 @@
     ./hardware-configuration.nix
   ];
 
-  # Bootloader.
+  # Bootloader
   boot.loader = {
     grub = {
       enable = true;
@@ -47,7 +47,6 @@
     LC_TIME = systemSettings.extraLocale;
   };
 
-
   # Default shell
   environment.shells = with pkgs; [ zsh ];
   users.defaultUserShell = pkgs.zsh;
@@ -67,15 +66,44 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim
-    git
     psmisc
+
+    # CLI tools
+    bat
+    btop
+    disfetch
+    eza
+    fzf
+    git
+    lazygit
+    neovim
+    # starship
+    tmux
+    vim
+    zoxide
+    zsh-history-substring-search
+
+    # SSDM tools
+    catppuccin-sddm
+
+    # Hyprland tools
+    hyprland
+    hyprlock
+
+    # GUI tools
+    ghostty
+    kitty
+    mako
+    networkmanagerapplet
+    pavucontrol
+    rofi-wayland
+    swww
+    waybar
   ];
 
   # House-keeping
   # $ sudo nix-collect-garbage -d
   # $ nix-collect-garbage -d
-  # $ home-manager expire-generations d
 
   nix = {
     optimise.automatic = true;
@@ -91,7 +119,7 @@
     };
 
     extraOptions = ''
-      min-free = ${toString (100 * 1024 * 1024)}
+      min-free = ${toString ( 100 * 1024 * 1024)}
       max-free = ${toString (1024 * 1024 * 1024)}
     '';
   };
@@ -164,13 +192,14 @@
     sddm = {
       enable = true;
       wayland.enable = true;
+      theme = "catppuccin-macchiato";
     };
     defaultSession = "hyprland";
   };
 
   hardware = {
     graphics.enable = true;
-    # nvidia.modesetting.enable = true;
+    nvidia.modesetting.enable = true;
   };
  
   # Open ports in the firewall.

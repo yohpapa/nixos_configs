@@ -3,22 +3,9 @@
   inputs = {
     # NOTE: Building hyprland fails with nixos-25.05
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nvf = {
-      url = "github:NotAShelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nvf, hyprland, ... }:
+  outputs = { nixpkgs, ... }:
   let
     # ---- System settings ---- #
     systemSettings = {
@@ -36,36 +23,11 @@
       username      = "yohpapa";
       name          = "Yohpapa";
     };
-
-    # ---- Local aliases ---- #
-    pkgs = nixpkgs.legacyPackages.${systemSettings.system};
   in
   {
+    # sudo nix-collect-garbage -d && sudo nixos-rebuild switch --flake .
     nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
-      system = systemSettings.system;
-      modules = [
-        ./configs/${systemSettings.profile}/configuration.nix 
-        home-manager.nixosModules.home-manager {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.${userSettings.username}.imports = [
-              ./home/users/${userSettings.username}.nix
-              nvf.homeManagerModules.default
-              {
-                wayland.windowManager.hyprland = {
-                  package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-                  portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-                };
-              }
-            ];
-            extraSpecialArgs = {
-              inherit systemSettings;
-              inherit userSettings;
-            };
-	        };
-        }
-      ];
+      modules = [ ./configs/${systemSettings.profile}/configuration.nix ];
       specialArgs = {
         inherit systemSettings;
         inherit userSettings;
