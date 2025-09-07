@@ -1,9 +1,7 @@
 { lib, pkgs, systemSettings, userSettings, ... }:
 
 {
-  imports = [
-    ./hardware-configuration.nix
-  ];
+  imports = [ ./hardware-configuration.nix ];
 
   # Bootloader
   boot.loader = {
@@ -69,16 +67,19 @@
     # CLI tools
     bat
     btop
+    cargo
     clang
     disfetch
     eza
     fd
+    figlet
     fzf
     git
     gnumake
     killall
     lazygit
     neovim
+    nerd-fonts.hack
     nodePackages.npm
     python3Full
     ripgrep
@@ -101,6 +102,7 @@
     # GUI tools
     ghostty
     kitty
+    libnotify
     mako
     networkmanagerapplet
     pavucontrol
@@ -122,12 +124,12 @@
     };
 
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];   # enable flakes
-      auto-optimise-store = true;                           # optimize the store in every build.
+      experimental-features = [ "nix-command" "flakes" ]; # enable flakes
+      auto-optimise-store = true; # optimize the store in every build.
     };
 
     extraOptions = ''
-      min-free = ${toString ( 100 * 1024 * 1024)}
+      min-free = ${toString (100 * 1024 * 1024)}
       max-free = ${toString (1024 * 1024 * 1024)}
     '';
   };
@@ -143,15 +145,13 @@
 
   virtualisation.virtualbox.guest.enable = true;
 
- # Some programs need SUID wrappers, can be configured further or are
+  # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
   # programs.gnupg.agent = {
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-
-  security.rtkit.enable = true;
 
   # List services that you want to enable:
 
@@ -166,6 +166,7 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa = {
@@ -179,7 +180,6 @@
   programs.hyprland = {
     enable = lib.mkDefault true;
     xwayland.enable = true;
-    # withUWSM = true;
   };
 
   environment.sessionVariables = {
@@ -190,12 +190,9 @@
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [
-      # xdg-desktop-portal-gtk
-      xdg-desktop-portal-hyprland
-    ];
+    extraPortals = with pkgs; [ xdg-desktop-portal-hyprland ];
   };
- 
+
   services.displayManager = {
     sddm = {
       enable = true;
@@ -207,18 +204,17 @@
 
   hardware = {
     graphics.enable = true;
-    # Disable the below just for VirtualBox
-    # nvidia.modesetting.enable = true;
+    nvidia.modesetting.enable = true;
   };
+
+  fonts.packages = with pkgs; [ nerd-fonts.hack ];
 
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
   programs.nix-ld = {
     enable = true;
-    libraries = with pkgs; [
-      lua-language-server 
-    ];
+    libraries = with pkgs; [ lua-language-server ];
   };
- 
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -232,5 +228,5 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
-  
+
 }
