@@ -66,8 +66,6 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    psmisc
-
     # CLI tools
     bat
     btop
@@ -78,6 +76,7 @@
     fzf
     git
     gnumake
+    killall
     lazygit
     neovim
     nodePackages.npm
@@ -208,7 +207,8 @@
 
   hardware = {
     graphics.enable = true;
-    nvidia.modesetting.enable = true;
+    # Disable the below just for VirtualBox
+    # nvidia.modesetting.enable = true;
   };
 
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
