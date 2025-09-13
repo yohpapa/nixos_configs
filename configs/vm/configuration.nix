@@ -1,6 +1,4 @@
-{ lib, pkgs, systemSettings, userSettings, ... }:
-
-{
+{ lib, pkgs, systemSettings, userSettings, zen-browser, ... }: {
   imports = [ ./hardware-configuration.nix ];
 
   # Bootloader
@@ -111,6 +109,7 @@
     rofi-wayland
     swww
     waybar
+    zen-browser.packages.${systemSettings.system}.default
   ];
 
   # House-keeping
