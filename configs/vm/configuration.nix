@@ -207,6 +207,7 @@
     nvidia.modesetting.enable = true;
   };
 
+  # https://nixos.wiki/wiki/Fonts
   fonts.packages = with pkgs; [ nerd-fonts.hack ];
 
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
