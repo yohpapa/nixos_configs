@@ -71,6 +71,7 @@
     clang
     disfetch
     eza
+    fastfetch
     fd
     figlet
     fzf
@@ -81,6 +82,7 @@
     neovim
     nerd-fonts.hack
     nodePackages.npm
+    pokeget-rs
     python3Full
     ripgrep
     starship
