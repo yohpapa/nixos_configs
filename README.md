@@ -69,5 +69,3 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    mkdir -p $HOME/.config/yazi/flavors
    git clone https://github.com/BennyOe/tokyo-night.yazi.git @HOME/.config/yazi/flavors/tokyo-night.yazi
    ```
-
-4.

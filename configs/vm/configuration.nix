@@ -210,7 +210,23 @@
   };
 
   # https://nixos.wiki/wiki/Fonts
-  fonts.packages = with pkgs; [ nerd-fonts.hack ];
+  fonts.packages = with pkgs; [
+    nerd-fonts.hack
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+  ];
+
+  i18n.inputMethod = {
+    type = "fcitx5";
+    enable = true;
+    fcitx5 = {
+      addons = with pkgs; [ fcitx5-mozc fcitx5-gtk fcitx5-configtool ];
+      waylandFrontend = true;
+    };
+  };
+
+  environment.variables = { XMODIFIERS = "@im=fcitx"; };
 
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
   programs.nix-ld = {
