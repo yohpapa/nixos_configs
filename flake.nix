@@ -12,7 +12,7 @@
       systemSettings = {
         system = "x86_64-linux";
         hostname = "nixos";
-        profile = "vm";
+        profile = "ws";
         timezone = "Asia/Tokyo";
         defaultLocale = "en_US.UTF-8";
         extraLocale = "ja_JP.UTF-8";
@@ -21,8 +21,8 @@
 
       # ---- User settings ---- #
       userSettings = {
-        username = "yohpapa";
-        name = "Yohpapa";
+        username = "unamomo";
+        name = "Kensuke Nakai";
       };
     in {
       # sudo nix-collect-garbage -d && sudo nixos-rebuild switch --flake .
