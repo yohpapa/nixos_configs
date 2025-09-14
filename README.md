@@ -18,12 +18,13 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 
 ## Apply the full set of configurations
 
-1. Clone the config repo and rebuild the system
+1. Clone the config repo and rebuild the system with the current hardware config
 
    ```sh
-   mkdir -p ~/.config/nix
+   mkdir -p $HOME/.config/nix
    git clone https://github.com/yohpapa/nixos_configs.git ~/.config/nix
-   sudo nixos-rebuild switch --flake ~/.config/nix
+   cp /etc/nixos/hardware-configuration.nix $HOME/.config/nix/configs/[machine]
+   sudo nixos-rebuild switch --flake $HOME/.config/nix
    ```
 
 2. Set up ssh for github
@@ -39,7 +40,7 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    Update the NixOS config repository to ssh
 
    ```sh
-   cd ~/.config/nix
+   cd $HOME/.config/nix
    git remote set-url main git@github.com:yohpapa/nixos_configs.git
    git remote -v
    ```
@@ -47,7 +48,7 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 3. Configure apps
 
    ```sh
-   cd
+   cd $HOME
    git clone git@github.com:yohpapa/dotfiles.git
    cd dotfiles
    stow
@@ -56,7 +57,7 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    Remove unnecessary configurations.
 
    ```sh
-   cd ~/.config
+   cd $HOME/.config
    rm systemd
    rm xremap
    ```
@@ -67,5 +68,5 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    mkdir -p $HOME/.config/tmux/plugins
    git clone https://github.com/tmux-plugins/tpm $HOME/.config/tmux/plugins/tpm
    mkdir -p $HOME/.config/yazi/flavors
-   git clone https://github.com/BennyOe/tokyo-night.yazi.git @HOME/.config/yazi/flavors/tokyo-night.yazi
+   git clone https://github.com/BennyOe/tokyo-night.yazi.git $HOME/.config/yazi/flavors/tokyo-night.yazi
    ```
