@@ -178,12 +178,14 @@
   services.xremap = {
     enable = true;
     package = pkgs.xremap;
+    watch = true;
     config = {
       modmap = [{
         name = "Global";
         remap = {
           "CapsLock" = "Control_L";
           "Control_L" = "Alt_L";
+          "Alt_L" = "SUPER_L";
         };
       }];
     };
