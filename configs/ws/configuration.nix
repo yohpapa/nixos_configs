@@ -97,6 +97,7 @@
     stow
     stylua
     unzip
+    usbutils
     vim
     zoxide
     zsh-history-substring-search
@@ -109,6 +110,7 @@
     hyprlock
 
     # GUI tools
+    firefox
     ghostty
     kitty
     libnotify
@@ -118,7 +120,7 @@
     rofi-wayland
     swww
     waybar
-    zen-browser.packages.${systemSettings.system}.default
+    # zen-browser.packages.${systemSettings.system}.default
   ];
 
   # House-keeping
@@ -169,6 +171,21 @@
     xkb = {
       layout = "us";
       variant = "";
+    };
+  };
+
+  # Key remapping
+  services.xremap = {
+    enable = true;
+    package = pkgs.xremap;
+    config = {
+      modmap = [{
+        name = "Global";
+        remap = {
+          "CapsLock" = "Control_L";
+          "Control_L" = "Alt_L";
+        };
+      }];
     };
   };
 

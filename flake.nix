@@ -3,10 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    zen-browser.url = "github:MarceColl/zen-browser-flake";
+    xremap-flake.url = "github:xremap/nix-flake";
   };
 
-  outputs = { nixpkgs, zen-browser, ... }:
+  outputs = { nixpkgs, xremap-flake, ... }:
     let
       # ---- System settings ---- #
       systemSettings = {
@@ -27,11 +27,13 @@
     in {
       # sudo nix-collect-garbage -d && sudo nixos-rebuild switch --flake .
       nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
-        modules = [ ./configs/${systemSettings.profile}/configuration.nix ];
+        modules = [
+          xremap-flake.nixosModules.default
+          ./configs/${systemSettings.profile}/configuration.nix
+        ];
         specialArgs = {
           inherit systemSettings;
           inherit userSettings;
-          inherit zen-browser;
         };
       };
     };
