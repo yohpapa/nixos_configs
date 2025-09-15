@@ -110,17 +110,20 @@
     hyprlock
 
     # GUI tools
+    brightnessctl
     firefox
     ghostty
+    imagemagick
     kitty
     libnotify
     mako
     networkmanagerapplet
     pavucontrol
+    pywal16
     rofi-wayland
+    swayosd
     swww
     waybar
-    # zen-browser.packages.${systemSettings.system}.default
   ];
 
   # House-keeping
@@ -279,6 +282,20 @@
     enable = true;
     libraries = with pkgs; [ lua-language-server ];
   };
+
+  # External drive
+  fileSystems."/mnt/hdd" = {
+    device = "/dev/disk/by-uuid/7108f049-26cb-4e5c-8e04-f58862fc5551";
+    fsType = "ext4";
+    options = [ "nofail" "x-gvfs-show" ];
+  };
+
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  services.blueman.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
