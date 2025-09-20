@@ -3,10 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    xremap-flake.url = "github:xremap/nix-flake";
+    xremap.url = "github:xremap/nix-flake";
+    ghostty.url = "github:ghostty-org/ghostty";
   };
 
-  outputs = { nixpkgs, xremap-flake, ... }:
+  outputs = { nixpkgs, xremap, ghostty, ... }:
     let
       # ---- System settings ---- #
       systemSettings = {
@@ -28,7 +29,11 @@
       # sudo nix-collect-garbage -d && sudo nixos-rebuild switch --flake .
       nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
         modules = [
-          xremap-flake.nixosModules.default
+          xremap.nixosModules.default
+          ({ pkgs, ... }: {
+            environment.systemPackages =
+              [ ghostty.packages.${systemSettings.system}.default ];
+          })
           ./configs/${systemSettings.profile}/configuration.nix
         ];
         specialArgs = {
