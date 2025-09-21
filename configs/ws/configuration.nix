@@ -85,7 +85,9 @@
     haskellPackages.ghc
     haskellPackages.haskell-language-server
     haskellPackages.ormolu
+    haskellPackages.stylish-haskell
     icu
+    jq
     killall
     lazygit
     lshw
@@ -108,13 +110,12 @@
     # SSDM tools
     catppuccin-sddm
 
-    # Hyprland tools
-    hyprland
-    hyprlock
-
     # GUI tools
     brightnessctl
     firefox
+    grim
+    hyprland
+    hyprlock
     imagemagick
     kitty
     libnotify
@@ -123,9 +124,12 @@
     pavucontrol
     pywal16
     rofi-wayland
+    slurp
+    swappy
     swayosd
     swww
     waybar
+    wl-clipboard
   ];
 
   # House-keeping
