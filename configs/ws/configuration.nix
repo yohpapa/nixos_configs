@@ -121,6 +121,7 @@
     libnotify
     mako
     networkmanagerapplet
+    obsidian
     pavucontrol
     pywal16
     rofi-wayland
