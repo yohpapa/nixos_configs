@@ -112,6 +112,7 @@
 
     # GUI tools
     brightnessctl
+    cliphist
     firefox
     grim
     hyprland
@@ -124,7 +125,7 @@
     obsidian
     pavucontrol
     pywal16
-    rofi-wayland
+    (rofi-wayland.override { plugins = [ rofi-emoji rofi-calc ]; })
     slurp
     swappy
     swayosd
