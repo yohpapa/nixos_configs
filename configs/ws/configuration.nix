@@ -75,6 +75,7 @@
     btop
     cargo
     clang
+    emacs
     eza
     fastfetch
     fd
@@ -318,6 +319,12 @@
     powerOnBoot = true;
   };
   services.blueman.enable = true;
+
+  # Emacs
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs;
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
