@@ -122,6 +122,7 @@
     libnotify
     mako
     networkmanagerapplet
+    niri
     obsidian
     pavucontrol
     pywal16
@@ -130,6 +131,8 @@
     swappy
     swayosd
     swww
+    udiskie
+    xwayland-satellite
     waybar
     wl-clipboard
   ];
@@ -220,8 +223,11 @@
   # Hyprland settings
   programs.hyprland = {
     enable = lib.mkDefault true;
+    withUWSM = true;
     xwayland.enable = true;
   };
+
+  programs.niri.enable = true;
 
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
@@ -231,7 +237,11 @@
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-hyprland ];
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
+    ];
+    config.niri."org.freedesktop.impl.portal.FileChooser" = "gtk";
   };
 
   # Display manager (Login manager) settings
@@ -239,9 +249,13 @@
     sddm = {
       enable = true;
       wayland.enable = true;
-      theme = "catppuccin-macchiato";
+      # theme = "catppuccin-macchiato";
+      theme = "catppuccin-mocha";
+      # theme = "elarun";
+      # theme = "maldives";
+      # theme = "maya";
     };
-    defaultSession = "hyprland";
+    defaultSession = "hyprland-uwsm";
   };
 
   # Graphics https://nixos.wiki/wiki/Nvidia
