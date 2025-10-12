@@ -75,6 +75,7 @@
     btop
     cargo
     clang
+    dysk
     emacs
     eza
     fastfetch
