@@ -13,7 +13,7 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 3. Build the system
 
    ```sh
-   sudo nixos-rebuild switch --flake .
+   sudo nixos-rebuild switch
    ```
 
 ## Apply the full set of configurations
@@ -47,7 +47,7 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    stow (module)
    ```
 
-   The module refers to a name of the directory under `$HOME/dotfiles`, which you want to stwo in `$HOME/.config`. See https://github.com/yohpapa/dotfiles for more details.
+   The module refers to a name of the directory under `$HOME/dotfiles`, which you want to stow in `$HOME/.config/`. See https://github.com/yohpapa/dotfiles for more details.
 
 5. Reboot the machine (after `sudo` if needed)
 
