@@ -44,25 +44,10 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    cd $HOME
    git clone https://github.com/yohpapa/dotfiles.git
    cd dotfiles
-   stow
+   stow (module)
    ```
 
-   Remove unnecessary configurations.
-
-   ```sh
-   cd $HOME/.config
-   rm systemd
-   rm xremap
-   ```
-
-   Additional downloads for tmux and yazi.
-
-   ```sh
-   mkdir -p $HOME/.config/tmux/plugins
-   git clone https://github.com/tmux-plugins/tpm $HOME/.config/tmux/plugins/tpm
-   mkdir -p $HOME/.config/yazi/flavors
-   git clone https://github.com/BennyOe/tokyo-night.yazi.git $HOME/.config/yazi/flavors/tokyo-night.yazi
-   ```
+   The module refers to a name of the directory under `$HOME/dotfiles`, which you want to stwo in `$HOME/.config`. See https://github.com/yohpapa/dotfiles for more details.
 
 5. Reboot the machine (after `sudo` if needed)
 
@@ -90,7 +75,3 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
    git remote set-url origin git@github.com:yohpapa/dotfiles.git
    git remote -v
    ```
-
-7. Additional configurations for Hyprland and Ghostty
-   - Hyprland animations from https://github.com/HyDE-Project/HyDE
-   - Ghostty shaders from https://github.com/hackr-sh/ghostty-shaders/tree/main and https://github.com/KroneCorylus/ghostty-shader-playground/tree/main/shaders
