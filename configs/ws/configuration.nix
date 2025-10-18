@@ -94,7 +94,7 @@
     lazygit
     lshw
     neovim
-    nerd-fonts.hack
+    nerd-fonts.fira-code
     nodePackages.npm
     pokeget-rs
     python3Full
@@ -284,7 +284,7 @@
 
   # Font settings https://nixos.wiki/wiki/Fonts
   fonts.packages = with pkgs; [
-    nerd-fonts.hack
+    nerd-fonts.fira-code
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
