@@ -322,11 +322,11 @@
   };
   services.blueman.enable = true;
 
-  # Emacs - disabled until the config is finalized
-  # services.emacs = {
-  #   enable = true;
-  #   package = pkgs.emacs;
-  # };
+  # Emacs
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs;
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
