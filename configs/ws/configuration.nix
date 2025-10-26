@@ -5,7 +5,9 @@
 #   \_/\_/ |___/ /_/     \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|
 #                                              |___/
 
-{ config, lib, pkgs, systemSettings, userSettings, ... }: {
+{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ... }:
+let neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+in {
   imports = [ ./hardware-configuration.nix ];
 
   # Bootloader
@@ -66,6 +68,8 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  nixpkgs.overlays = [ neovim-override ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget

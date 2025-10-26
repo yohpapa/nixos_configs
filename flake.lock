@@ -482,6 +482,22 @@
         "type": "github"
       }
     },
+    "neovim-pkgs": {
+      "locked": {
+        "lastModified": 1759826507,
+        "narHash": "sha256-vwXL9H5zDHEQA0oFpww2one0/hkwnPAjc47LRph6d0I=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "bce5fe2bb998488d8e7e7856315f90496723793c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "bce5fe2bb998488d8e7e7856315f90496723793c",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1748189127,
@@ -646,6 +662,7 @@
     "root": {
       "inputs": {
         "ghostty": "ghostty",
+        "neovim-pkgs": "neovim-pkgs",
         "nixpkgs": "nixpkgs_3",
         "xremap": "xremap"
       }
