@@ -124,9 +124,11 @@ in {
     grim
     hyprland
     hyprlock
+    gdk-pixbuf
     imagemagick
     kitty
     libnotify
+    librsvg
     mako
     networkmanagerapplet
     niri
