@@ -5,7 +5,8 @@
 #   \_/\_/ |___/ /_/     \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|
 #                                              |___/
 
-{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ... }:
+{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
+, sddm-stray, ... }:
 let neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
 in {
   imports = [ ./hardware-configuration.nix ];
@@ -116,6 +117,7 @@ in {
 
     # SSDM tools
     catppuccin-sddm
+    sddm-stray
 
     # GUI tools
     brightnessctl
@@ -125,6 +127,7 @@ in {
     hyprland
     hyprlock
     gdk-pixbuf
+    ghostty
     imagemagick
     kitty
     libnotify
@@ -259,10 +262,13 @@ in {
       enable = true;
       wayland.enable = true;
       # theme = "catppuccin-macchiato";
-      theme = "catppuccin-mocha";
+      # theme = "catppuccin-mocha";
       # theme = "elarun";
       # theme = "maldives";
       # theme = "maya";
+      package = pkgs.kdePackages.sddm;
+      extraPackages = with pkgs; [ kdePackages.qtsvg kdePackages.qtmultimedia ];
+      theme = "sddm-stray";
     };
     defaultSession = "hyprland-uwsm";
   };

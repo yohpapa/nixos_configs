@@ -7,9 +7,10 @@
     ghostty.url = "github:ghostty-org/ghostty";
     neovim-pkgs.url =
       "github:nixos/nixpkgs/bce5fe2bb998488d8e7e7856315f90496723793c";
+    sddm-stray.url = "github:Bqrry4/sddm-stray";
   };
 
-  outputs = { nixpkgs, xremap, ghostty, neovim-pkgs, ... }:
+  outputs = { nixpkgs, xremap, ghostty, neovim-pkgs, sddm-stray, ... }:
     let
       # ---- System settings ---- #
       systemSettings = {
@@ -32,16 +33,14 @@
       nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
         modules = [
           xremap.nixosModules.default
-          ({ pkgs, ... }: {
-            environment.systemPackages =
-              [ ghostty.packages.${systemSettings.system}.default ];
-          })
           ./configs/${systemSettings.profile}/configuration.nix
         ];
         specialArgs = {
           inherit systemSettings;
           inherit userSettings;
           neovim-pkgs = import neovim-pkgs { system = systemSettings.system; };
+          ghostty = ghostty.packages.${systemSettings.system}.default;
+          sddm-stray = sddm-stray.packages.${systemSettings.system}.default;
         };
       };
     };
