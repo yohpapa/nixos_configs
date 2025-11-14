@@ -7,7 +7,14 @@
 with import <nixpkgs> { };
 
 mkShell {
-  buildInputs = [ llvmPackages.clang llvmPackages.lld llvmPackages.llvm zsh ];
+  buildInputs = [
+    llvmPackages.clang-tools
+    llvmPackages.clang
+    llvmPackages.lld
+    llvmPackages.llvm
+    cmake
+    zsh
+  ];
 
   shellHook = ''
     figlet -w 200 This is a shell for C and C++ dev!
