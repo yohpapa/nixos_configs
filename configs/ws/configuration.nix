@@ -89,10 +89,6 @@ in {
     fzf
     git
     gnumake
-    haskellPackages.ghc
-    haskellPackages.haskell-language-server
-    haskellPackages.ormolu
-    haskellPackages.stylish-haskell
     icu
     jq
     killall
@@ -317,7 +313,7 @@ in {
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
   programs.nix-ld = {
     enable = true;
-    libraries = with pkgs; [ lua-language-server icu haskell-language-server ];
+    libraries = with pkgs; [ lua-language-server icu ];
   };
 
   # External drive
