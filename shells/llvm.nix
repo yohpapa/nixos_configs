@@ -12,6 +12,7 @@ mkShell {
     llvmPackages.clang
     llvmPackages.lld
     llvmPackages.llvm
+    llvmPackages.lldb
     cmake
     zsh
   ];
