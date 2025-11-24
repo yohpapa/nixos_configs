@@ -119,6 +119,7 @@ in {
     brightnessctl
     cliphist
     firefox
+    firefoxpwa
     grim
     hyprland
     hyprlock
@@ -334,6 +335,13 @@ in {
   services.emacs = {
     enable = true;
     package = pkgs.emacs;
+  };
+
+  # Firefox
+  programs.firefox = {
+    enable = true;
+    package = pkgs.firefox;
+    nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
   };
 
   # Open ports in the firewall.
