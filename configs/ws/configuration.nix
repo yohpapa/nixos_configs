@@ -118,6 +118,7 @@ in {
     # GUI tools
     brightnessctl
     cliphist
+    dconf
     firefox
     firefoxpwa
     grim
@@ -246,11 +247,11 @@ in {
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-hyprland
-      xdg-desktop-portal-gtk
-    ];
-    config.niri."org.freedesktop.impl.portal.FileChooser" = "gtk";
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
+    config = {
+      common.default = "gtk";
+      niri."org.freedesktop.impl.portal.FileChooser" = "gtk";
+    };
   };
 
   # Display manager (Login manager) settings
@@ -343,6 +344,8 @@ in {
     package = pkgs.firefox;
     nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
   };
+
+  services.dbus.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
