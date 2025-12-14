@@ -64,7 +64,7 @@ in {
   users.users.${userSettings.username} = {
     isNormalUser = true;
     description = userSettings.name;
-    extraGroups = [ "networkmanager" "wheel" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "input" "video" "audio" ];
   };
 
   # Allow unfree packages
@@ -242,6 +242,8 @@ in {
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
+    WLR_RENDERER = "opengl";
+    GBM_BACKENDS = "";
   };
 
   xdg.portal = {
