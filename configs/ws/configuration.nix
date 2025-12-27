@@ -24,6 +24,8 @@ in {
     };
   };
 
+  boot.kernelParams = [ "usbcore.autosuspend=-1" "nvidia-drm.modeset=1" ];
+
   # Network settings
   networking.hostName = systemSettings.hostname;
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -242,7 +244,7 @@ in {
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
-    WLR_RENDERER = "opengl";
+    WLR_RENDERER = "vulkan";
     GBM_BACKENDS = "";
   };
 
@@ -284,11 +286,7 @@ in {
       };
       open = false;
       nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
-      # prime = {
-      #   sync.enable = true;
-      #   nvidiaBusId = "PCI:16:0:0";
-      # };
+      package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
   };
 
