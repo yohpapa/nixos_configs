@@ -12,19 +12,32 @@ in {
   imports = [ ./hardware-configuration.nix ];
 
   # Bootloader
-  boot.loader = {
-    grub = {
-      enable = true;
-      device = "/dev/sda";
-      useOSProber = true;
+  boot = {
+    loader = {
+      grub = {
+        enable = true;
+        device = "/dev/sda";
+        useOSProber = true;
+      };
+      systemd-boot = {
+        # enable = true;
+        configurationLimit = systemSettings.maxBackups;
+      };
     };
-    systemd-boot = {
-      # enable = true;
-      configurationLimit = systemSettings.maxBackups;
-    };
-  };
 
-  boot.kernelParams = [ "usbcore.autosuspend=-1" "nvidia-drm.modeset=1" ];
+    kernelParams = [
+      "usbcore.autosuspend=-1"
+      "nvidia-drm.modeset=1"
+      "usbcore.quirks=0853:0145:k"
+    ];
+
+    extraModprobeConfig = ''
+      options nvidia NVreg_EnableGpuFirmware=0
+      options nvidia NVreg_PreserveVideoMemoryAllocations=1
+    '';
+
+    kernelModules = [ "uinput" ];
+  };
 
   # Network settings
   networking.hostName = systemSettings.hostname;
@@ -205,6 +218,7 @@ in {
     enable = true;
     package = pkgs.xremap;
     watch = true;
+    userName = userSettings.username;
     config = {
       modmap = [{
         name = "Global";
@@ -244,7 +258,7 @@ in {
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
-    WLR_RENDERER = "vulkan";
+    WLR_RENDERER = "opengl";
     GBM_BACKENDS = "";
   };
 
@@ -254,7 +268,10 @@ in {
     extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
     config = {
       common.default = "gtk";
-      niri."org.freedesktop.impl.portal.FileChooser" = "gtk";
+      niri = {
+        default = "gtk";
+        "org.freedesktop.impl.portal.Settings" = "gtk";
+      };
     };
   };
 
@@ -281,7 +298,7 @@ in {
     nvidia = {
       modesetting.enable = true;
       powerManagement = {
-        enable = false;
+        enable = true;
         finegrained = false;
       };
       open = false;
@@ -289,6 +306,8 @@ in {
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
   };
+
+  hardware.uinput.enable = true;
 
   services.xserver.videoDrivers = [ "nvidia" ];
 
