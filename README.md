@@ -30,14 +30,14 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 
 2. Update system and user settings in `flake.nix`
 
-3. Put your background image (png, jpg or gif) in $HOME/flake/configs/ws/assets/background.[png|jpg|gif]
+3. Put your background image (png, jpg or gif) in $HOME/.config/nix/configs/ws/assets/background.[png|jpg|gif]
 
 4. Rebuild the system
 
    NOTE: Make sure to commit any new files before rebuilding the system. Otherwise, it fails.
 
    ```sh
-   sudo nixos-rebuild switch --flake path:$HOME/flake
+   sudo nixos-rebuild switch --flake path:$HOME/.config/nix
    ```
 
 5. Configure apps
