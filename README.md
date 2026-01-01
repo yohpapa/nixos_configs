@@ -30,15 +30,17 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 
 2. Update system and user settings in `flake.nix`
 
-3. Rebuild the system
+3. Put your background image (png, jpg or gif) in $HOME/flake/configs/ws/assets/background.[png|jpg|gif]
+
+4. Rebuild the system
 
    NOTE: Make sure to commit any new files before rebuilding the system. Otherwise, it fails.
 
    ```sh
-   sudo nixos-rebuild switch --flake .
+   sudo nixos-rebuild switch --flake path:$HOME/flake
    ```
 
-4. Configure apps
+5. Configure apps
 
    ```sh
    cd $HOME
@@ -49,13 +51,13 @@ Download whichever ISO image from https://nixos.org/download/ and just follow th
 
    The module refers to a name of the directory under `$HOME/dotfiles`, which you want to stow in `$HOME/.config/`. See https://github.com/yohpapa/dotfiles for more details.
 
-5. Reboot the machine (after `sudo` if needed)
+6. Reboot the machine (after `sudo` if needed)
 
    ```sh
    reboot
    ```
 
-6. Set up ssh for github
+7. Set up ssh for github
 
    ```sh
    git config --global user.name "XXXX"

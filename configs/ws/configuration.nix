@@ -5,9 +5,14 @@
 #   \_/\_/ |___/ /_/     \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|
 #                                              |___/
 
-{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
-, sddm-stray, ... }:
-let neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty, ... }:
+let
+  neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+  assetsDir = ./assets;
+  backgrounds = [ "background.gif" "background.jpg" "background.png" ];
+  foundFile = lib.findFirst (file: builtins.pathExists (assetsDir + "/${file}"))
+    "background.png" backgrounds;
+  customBg = assetsDir + "/${foundFile}";
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -129,7 +134,14 @@ in {
 
     # SSDM tools
     catppuccin-sddm
-    sddm-stray
+    (sddm-astronaut.override {
+      themeConfig = {
+        Background = "${customBg}";
+        Font = "FiraCode Nerd Font";
+        FontSize = "20";
+        FormPosition = "left";
+      };
+    })
 
     # GUI tools
     brightnessctl
@@ -296,9 +308,13 @@ in {
       # theme = "elarun";
       # theme = "maldives";
       # theme = "maya";
+      theme = "sddm-astronaut-theme";
       package = pkgs.kdePackages.sddm;
-      extraPackages = with pkgs; [ kdePackages.qtsvg kdePackages.qtmultimedia ];
-      theme = "sddm-stray";
+      extraPackages = with pkgs.kdePackages; [
+        qtsvg
+        qtmultimedia
+        qtvirtualkeyboard
+      ];
     };
     defaultSession = "hyprland-uwsm";
   };
