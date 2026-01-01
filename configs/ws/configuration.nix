@@ -111,6 +111,7 @@ in {
     lshw
     neovim
     nerd-fonts.fira-code
+    nmap
     nodePackages.npm
     pokeget-rs
     python3Full
@@ -156,6 +157,7 @@ in {
     swappy
     swayosd
     swww
+    tailscale-systray
     udiskie
     xwayland-satellite
     waybar
@@ -219,6 +221,7 @@ in {
     package = pkgs.xremap;
     watch = true;
     userName = userSettings.username;
+    deviceNames = [ "Topre REALFORCE 87 US" "Topre REALFORCE 87 US Keyboard" ];
     config = {
       modmap = [{
         name = "Global";
@@ -230,6 +233,14 @@ in {
       }];
     };
   };
+
+  services.udev.extraRules = ''
+    # Kill xremap immediately when switching away to prevent Wayland input hangs
+    ACTION=="remove", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", RUN+="${pkgs.systemd}/bin/systemctl stop xremap.service"
+
+    # Cleanly start xremap when switching back to the workstation
+    ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", TAG+="systemd", ENV{SYSTEMD_WANTS}+="xremap.service"
+  '';
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
@@ -365,6 +376,10 @@ in {
   };
 
   services.dbus.enable = true;
+
+  services.tailscale.enable = true;
+
+  services.udisks2.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

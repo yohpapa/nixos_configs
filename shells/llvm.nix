@@ -13,6 +13,7 @@ mkShell {
     llvmPackages.lld
     llvmPackages.llvm
     llvmPackages.lldb
+    boost
     cmake
     zsh
   ];
