@@ -15,7 +15,12 @@ mkShell {
     llvmPackages.lldb
     boost
     cmake
+    cmake-format
+    cmake-lint
     zsh
+    neocmakelsp
+    figlet
+    ninja
   ];
 
   shellHook = ''
