@@ -34,6 +34,8 @@ in {
       "usbcore.autosuspend=-1"
       "nvidia-drm.modeset=1"
       "usbcore.quirks=0853:0145:k"
+      "loglevel=3"
+      "processor.max_cstate=1"
     ];
 
     extraModprobeConfig = ''
