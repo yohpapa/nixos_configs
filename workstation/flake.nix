@@ -14,8 +14,7 @@
       # ---- System settings ---- #
       systemSettings = {
         system = "x86_64-linux";
-        hostname = "nixos";
-        profile = "ws";
+        hostname = "workstation";
         timezone = "Asia/Tokyo";
         defaultLocale = "en_US.UTF-8";
         extraLocale = "ja_JP.UTF-8";
@@ -24,16 +23,13 @@
 
       # ---- User settings ---- #
       userSettings = {
-        username = "unamomo";
+        username = "kensuke";
         name = "Kensuke Nakai";
       };
     in {
       # sudo nix-collect-garbage -d && sudo nixos-rebuild switch --flake .
       nixosConfigurations.${systemSettings.hostname} = nixpkgs.lib.nixosSystem {
-        modules = [
-          xremap.nixosModules.default
-          ./configs/${systemSettings.profile}/configuration.nix
-        ];
+        modules = [ xremap.nixosModules.default ./configuration.nix ];
         specialArgs = {
           inherit systemSettings;
           inherit userSettings;
