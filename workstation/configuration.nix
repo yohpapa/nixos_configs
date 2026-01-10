@@ -149,7 +149,6 @@ in {
     brightnessctl
     cliphist
     dconf
-    firefox
     firefoxpwa
     grim
     hyprland
