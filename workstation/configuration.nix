@@ -117,7 +117,6 @@ in {
     lazygit
     lshw
     neovim
-    nerd-fonts.fira-code
     nmap
     nodePackages.npm
     pokeget-rs
@@ -139,7 +138,7 @@ in {
     (sddm-astronaut.override {
       themeConfig = {
         Background = "${customBg}";
-        Font = "FiraCode Nerd Font";
+        Font = "CaskaydiaCove Nerd Font";
         FontSize = "20";
         FormPosition = "left";
       };
@@ -341,10 +340,10 @@ in {
 
   # Font settings https://nixos.wiki/wiki/Fonts
   fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-color-emoji
+    nerd-fonts.caskaydia-cove
   ];
 
   # IME settings
