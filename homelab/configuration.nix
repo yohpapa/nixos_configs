@@ -98,7 +98,7 @@
   system.stateVersion = "25.11"; # Did you read the comment?
 
   # GPU Drivers & Early Boot
-  boot.initrd.kernelModules = [ "amdgpu" ];
+  boot.initrd.kernelModules = [ "amdgpu" "iptable_filter" "iptable_nat" ];
   services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Custom NixOS configurations
@@ -110,6 +110,8 @@
     pciutils
     docker-compose
     vulkan-tools
+    openssl
+    curl
   ];
 
   # Fix LAN issue
@@ -169,6 +171,13 @@
     defaultGateway = "192.168.1.1";
     nameservers = [ "8.8.8.8" "1.1.1.1" ];
     extraHosts = "129.168.1.100 homelab";
+
+    firewall = {
+      allowedTCPPorts = [ 53 80 443 853 3000 ];
+      allowedUDPPorts = [ 53 443 853 ];
+      trustedInterfaces = [ "tailscale0" ];
+      checkReversePath = "loose";
+    };
   };
 
   # House-keeping
