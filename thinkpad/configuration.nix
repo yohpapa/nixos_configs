@@ -1,0 +1,493 @@
+# #_   _     _       _                    _    __               __ _                       _   _                     _
+# | |_| |__ (_)_ __ | | ___ __   __ _  __| |  / /__ ___  _ __  / _(_) __ _ _   _ _ __ __ _| |_(_) ___  _ __    _ __ (_)_  __
+# | __| '_ \| | '_ \| |/ / '_ \ / _` |/ _` | / / __/ _ \| '_ \| |_| |/ _` | | | | '__/ _` | __| |/ _ \| '_ \  | '_ \| \ \/ /
+# | |_| | | | | | | |   <| |_) | (_| | (_| |/ / (_| (_) | | | |  _| | (_| | |_| | | | (_| | |_| | (_) | | | |_| | | | |>  <
+#  \__|_| |_|_|_| |_|_|\_\ .__/ \__,_|\__,_/_/ \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_(_)_| |_|_/_/\_\
+#                        |_|                                         |___/
+
+{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty, ... }:
+let
+  neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+  assetsDir = ./assets;
+  actualFiles = builtins.attrNames (builtins.readDir assetsDir);
+  foundFile = lib.findFirst (file: lib.elem file actualFiles)
+    "background.png" # The fallback if nothing is found
+    [ "background.gif" "background.jpg" "background.png" ];
+  customBg = assetsDir + "/${foundFile}";
+  custom-astronaut = pkgs.sddm-astronaut.override {
+    themeConfig = {
+      Background = "${customBg}";
+      Font = "CaskaydiaCove Nerd Font";
+      FontSize = "20";
+      FormPosition = "left";
+    };
+  };
+in {
+  imports = [ ./hardware-configuration.nix ];
+
+  # Bootloader
+  boot = {
+    loader = {
+      efi.canTouchEfiVariables = true;
+      grub = {
+        enable = true;
+        efiSupport = true;
+        device = "nodev";
+        useOSProber = true;
+        configurationLimit = systemSettings.maxBackups;
+      };
+      systemd-boot.enable = false;
+    };
+
+    kernelParams = [
+      "usbcore.autosuspend=-1"
+      "usbcore.quirks=0853:0145:k"
+      "amd_pstate=active"
+      "amdgpu.sg_display=0"
+      "amdgpu.dcdebugmask=0x10"
+      "thinkpad_acpi.fan_control=1"
+    ];
+
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelModules = [ "uinput" ];
+    initrd.kernelModules = [ "amdgpu" ];
+  };
+
+  # Network settings
+  networking.hostName = systemSettings.hostname;
+  networking.wireless.enable =
+    true; # Enables wireless support via wpa_supplicant.
+
+  # Network manager
+  networking.networkmanager = {
+    enable = true;
+    wifi.powersave = false;
+  };
+
+  # Time zone.
+  time.timeZone = systemSettings.timezone;
+
+  # Locale settings
+  i18n = {
+    defaultLocale = systemSettings.defaultLocale;
+    extraLocaleSettings = {
+      LC_ADDRESS = systemSettings.extraLocale;
+      LC_IDENTIFICATION = systemSettings.extraLocale;
+      LC_MEASUREMENT = systemSettings.extraLocale;
+      LC_MONETARY = systemSettings.extraLocale;
+      LC_NAME = systemSettings.extraLocale;
+      LC_NUMERIC = systemSettings.extraLocale;
+      LC_PAPER = systemSettings.extraLocale;
+      LC_TELEPHONE = systemSettings.extraLocale;
+      LC_TIME = systemSettings.extraLocale;
+    };
+  };
+
+  # Default shell
+  environment.shells = with pkgs; [ zsh ];
+  users.defaultUserShell = pkgs.zsh;
+  programs.zsh.enable = true;
+
+  # User account settings.
+  # Don't forget to set a password with ‘passwd’.
+  users.users.${userSettings.username} = {
+    isNormalUser = true;
+    description = userSettings.name;
+    extraGroups = [ "networkmanager" "wheel" "input" "video" "audio" "render" ];
+  };
+
+  # Allow proprietary firmware for Wi-Fi 7 and AMD Bluetooth
+  nixpkgs.config.allowUnfree = true;
+  hardware.enableAllFirmware = true;
+
+  # Neovim overlay
+  nixpkgs.overlays = [ neovim-override ];
+
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+    # CLI tools
+    bat
+    btop
+    cargo
+    clang
+    dysk
+    eza
+    fastfetch
+    fd
+    figlet
+    fzf
+    git
+    gnumake
+    icu
+    jq
+    kanshi
+    killall
+    lazygit
+    lshw
+    neovim
+    nmap
+    nodePackages.npm
+    pciutils
+    pokeget-rs
+    ripgrep
+    starship
+    tmux
+    stow
+    stylua
+    unzip
+    usbutils
+    vim
+    zoxide
+    zsh-history-substring-search
+
+    # Display manager
+    custom-astronaut
+
+    # GUI tools
+    brightnessctl
+    cliphist
+    dconf
+    firefoxpwa
+    grim
+    hyprland
+    hyprlock
+    gdk-pixbuf
+    ghostty
+    imagemagick
+    kitty
+    libnotify
+    librsvg
+    mako
+    networkmanagerapplet
+    niri
+    pavucontrol
+    pywal16
+    (rofi.override { plugins = [ rofi-emoji rofi-calc ]; })
+    slurp
+    swappy
+    swayosd
+    swww
+    tailscale-systray
+    udiskie
+    xwayland-satellite
+    waybar
+    wl-clipboard
+  ];
+
+  # House-keeping
+  # $ sudo nix-collect-garbage -d
+  # $ nix-collect-garbage -d
+  nix = {
+    optimise.automatic = true;
+    gc = {
+      automatic = true;
+      dates = "daily";
+      options = "--delete-older-than 3d";
+    };
+
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ]; # enable flakes
+      auto-optimise-store = true; # optimize the store in every build.
+    };
+
+    extraOptions = ''
+      min-free = ${toString (100 * 1024 * 1024)}
+      max-free = ${toString (1024 * 1024 * 1024)}
+    '';
+  };
+
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
+
+  # Key remapping
+  services.xremap = {
+    enable = true;
+    package = pkgs.xremap;
+    watch = true;
+    userName = userSettings.username;
+    deviceNames = [
+      "Topre REALFORCE 87 US"
+      "Topre REALFORCE 87 US Keyboard"
+      "AT Translated Set 2 keyboard"
+    ];
+    config = {
+      modmap = [{
+        name = "Global";
+        remap = {
+          "CapsLock" = "Control_L";
+          "Control_L" = "Alt_L";
+          "Alt_L" = "SUPER_L";
+        };
+      }];
+    };
+  };
+
+  services.udev.extraRules = ''
+    # When the Realforce is unplugged, restart xremap to fall back to the internal keyboard
+    ACTION=="remove", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", RUN+="${pkgs.systemd}/bin/systemctl restart xremap.service"
+
+    # When the Realforce is plugged in, restart xremap to grab it
+    ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", RUN+="${pkgs.systemd}/bin/systemctl restart xremap.service"
+
+    # Trigger on DRM change for the Zen 5 GPU (card1)
+    #
+    # NOTE:
+    # Since the 3-4 USB path is tied to the physical internal wiring of the T14 Gen 5, it should remain consistent.
+    # However, if you ever perform a major BIOS/Firmware update and notice the automation stop working, just run
+    # grep -l "06cb" /sys/bus/usb/devices/*/idVendor
+    # again to see if the kernel re-indexed the port to something like 3-3 or 3-5.
+    #
+    ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", \
+    RUN+="${pkgs.bash}/bin/bash -c 'if ${pkgs.gnugrep}/bin/grep -q \"^connected$$\" /sys/class/drm/card1-DP-*/status; then \
+      if [ -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/unbind; fi; \
+      ${pkgs.systemd}/bin/systemctl stop fprintd.service; \
+    else \
+      if [ ! -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/bind; fi; \
+      ${pkgs.systemd}/bin/systemctl start fprintd.service; \
+    fi'"
+  '';
+
+  # Enable the OpenSSH daemon.
+  services.openssh.enable = true;
+
+  # Audio settings
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
+    pulse.enable = true;
+    jack.enable = true;
+    wireplumber.enable = true;
+  };
+
+  # Wayland compositor settings
+  programs.hyprland = {
+    enable = lib.mkDefault true;
+    withUWSM = true;
+    xwayland.enable = true;
+  };
+
+  programs.niri.enable = true;
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    AMD_VULKAN_ICD = "RADV";
+    WLR_DRM_DEVICES = "/dev/dri/card1";
+    LIBVA_DRIVER_NAME = "radeonsi";
+    VDPAU_DRIVER = "radeonsi";
+    MESA_LOADER_DRIVER_OVERRIDE = "radeonsi";
+    XDG_SESSION_TYPE = "wayland";
+    NIRI_RENDERER = "gles2";
+    WLR_BACKENDS = "drm,libinput";
+  };
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
+    config = {
+      common.default = "gtk";
+      niri = {
+        default = lib.mkOptionDefault "gtk";
+        "org.freedesktop.impl.portal.Settings" = "gtk";
+      };
+    };
+  };
+
+  # Xserver settings
+  services.xserver = {
+    enable = true;
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
+    videoDrivers = [ "amdgpu" ];
+  };
+
+  # Display manager (Login manager) settings
+  services.displayManager = {
+    sddm = {
+      enable = true;
+      wayland.enable = true;
+      theme = "sddm-astronaut-theme";
+      package = pkgs.kdePackages.sddm;
+      extraPackages = with pkgs; [
+        custom-astronaut
+        kdePackages.qtsvg
+        kdePackages.qtmultimedia
+        kdePackages.qtvirtualkeyboard
+        kdePackages.qtwayland
+        kdePackages.kwayland
+      ];
+      settings = {
+        Wayland.CompositorCommand =
+          "${pkgs.kdePackages.kwin}/bin/kwin_wayland --no-lockscreen";
+        General.GreeterEnvironment = "KWIN_DRM_OUTPUT_ORDER=DP-2,eDP-1";
+      };
+    };
+    defaultSession = "niri";
+  };
+
+  systemd.tmpfiles.rules = [
+    "L+ /run/current-system/sw/share/sddm/themes/sddm-astronaut-theme - - - - ${custom-astronaut}/share/sddm/themes/sddm-astronaut-theme"
+  ];
+
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  services.blueman.enable = true;
+
+  # Graphics
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      libva-utils
+      libva-vdpau-driver
+      libvdpau-va-gl
+      rocmPackages.clr.icd
+      rocmPackages.rocminfo
+      mesa
+    ];
+  };
+
+  hardware.uinput.enable = true;
+
+  # Font settings https://nixos.wiki/wiki/Fonts
+  fonts.packages = with pkgs; [
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+    nerd-fonts.caskaydia-cove
+  ];
+
+  # IME settings
+  i18n.inputMethod = {
+    type = "fcitx5";
+    enable = true;
+    fcitx5 = {
+      addons = with pkgs; [
+        fcitx5-mozc
+        fcitx5-gtk
+        qt6Packages.fcitx5-configtool
+      ];
+      waylandFrontend = true;
+    };
+  };
+
+  environment.variables = {
+    GTK_IM_MODULE = "fcitx5";
+    QT_IM_MODULE = "fcitx5";
+    XMODIFIERS = "@im=fcitx";
+  };
+
+  # https://nix.dev/guides/faq#how-to-run-non-nix-executables
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [ lua-language-server icu ];
+  };
+
+  # Firefox
+  programs.firefox = {
+    enable = true;
+    package = pkgs.firefox;
+    nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
+  };
+
+  # Battery Longevity
+  services.tlp = {
+    enable = true;
+    settings = {
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      START_CHARGE_THRESH_BAT0 = 40;
+      STOP_CHARGE_THRESH_BAT0 = 80; # Stop at 80% to extend battery life
+    };
+  };
+  services.power-profiles-daemon.enable = false;
+
+  # Headless/SSH Mode: Don't sleep when the lid is closed
+  services.logind.settings = {
+    Login = {
+      HandleLidSwitch = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitchDocked = "ignore";
+    };
+  };
+
+  # Fingerprint Sensor (Synaptics 06cb:00f9)
+  services.fprintd.enable = true;
+  security = {
+    pam.services = {
+      sudo.fprintAuth = true; # Touch sensor for sudo!
+      login.fprintAuth = false; # Touch sensor for login!
+      swaylock.fprintAuth = false; # for future (sway is not enabled yet)
+    };
+    polkit = {
+      enable = true;
+      extraConfig = ''
+              polkit.addRule(function(action, user) {
+          if (action.id == "org.freedesktop.systemd1.manage-units" &&
+              action.lookup("unit") == "fprintd.service" &&
+              user.isInGroup("wheel")) {
+            return polkit.Result.YES;
+          }
+        });
+      '';
+    };
+  };
+
+  # Firmware Updates
+  services.fwupd.enable = true;
+
+  # Trackpoint
+  services.libinput = {
+    touchpad.tapping = true;
+    mouse.accelProfile = "flat";
+  };
+
+  # Other services
+  services = {
+    dbus.enable = true;
+    tailscale.enable = true;
+    udisks2.enable = true;
+  };
+
+  systemd.user.services.kanshi = {
+    description = "Kanshi output autoconfig ";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.kanshi}/bin/kanshi";
+      Restart = "always";
+    };
+  };
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "25.11"; # Did you read the comment?
+
+}
