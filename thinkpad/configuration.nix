@@ -327,11 +327,18 @@ in {
         kdePackages.qtvirtualkeyboard
         kdePackages.qtwayland
         kdePackages.kwayland
+        kdePackages.breeze-icons
       ];
       settings = {
-        Wayland.CompositorCommand =
-          "${pkgs.kdePackages.kwin}/bin/kwin_wayland --no-lockscreen";
-        General.GreeterEnvironment = "KWIN_DRM_OUTPUT_ORDER=DP-2,eDP-1";
+        General = {
+          GreeterEnvironment =
+            "KWIN_DRM_OUTPUT_ORDER=DP-2,eDP-1,KWIN_DRM_FORCE_PRIMARY_OUTPUT=DP-2";
+          InputMethod = "";
+        };
+        Theme = {
+          CursorTheme = "breeze_cursors";
+          CursorSize = 24;
+        };
       };
     };
     defaultSession = "niri";
