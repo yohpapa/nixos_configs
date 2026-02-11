@@ -6,22 +6,7 @@
 #                        |_|                                         |___/
 
 { config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty, ... }:
-let
-  neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
-  assetsDir = ./assets;
-  actualFiles = builtins.attrNames (builtins.readDir assetsDir);
-  foundFile = lib.findFirst (file: lib.elem file actualFiles)
-    "background.png" # The fallback if nothing is found
-    [ "background.gif" "background.jpg" "background.png" ];
-  customBg = assetsDir + "/${foundFile}";
-  custom-astronaut = pkgs.sddm-astronaut.override {
-    themeConfig = {
-      Background = "${customBg}";
-      Font = "CaskaydiaCove Nerd Font";
-      FontSize = "20";
-      FormPosition = "left";
-    };
-  };
+let neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -51,6 +36,13 @@ in {
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "uinput" ];
     initrd.kernelModules = [ "amdgpu" ];
+  };
+
+  console = {
+    earlySetup = true;
+    font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
+    packages = [ pkgs.terminus_font ];
+    keyMap = "us";
   };
 
   # Network settings
@@ -141,10 +133,8 @@ in {
     zoxide
     zsh-history-substring-search
 
-    # Display manager
-    custom-astronaut
-
     # GUI tools
+    alacritty
     brightnessctl
     cliphist
     dconf
@@ -313,40 +303,101 @@ in {
     videoDrivers = [ "amdgpu" ];
   };
 
-  # Display manager (Login manager) settings
-  services.displayManager = {
-    sddm = {
-      enable = true;
-      wayland.enable = true;
-      theme = "sddm-astronaut-theme";
-      package = pkgs.kdePackages.sddm;
-      extraPackages = with pkgs; [
-        custom-astronaut
-        kdePackages.qtsvg
-        kdePackages.qtmultimedia
-        kdePackages.qtvirtualkeyboard
-        kdePackages.qtwayland
-        kdePackages.kwayland
-        kdePackages.breeze-icons
-      ];
-      settings = {
-        General = {
-          GreeterEnvironment =
-            "KWIN_DRM_OUTPUT_ORDER=DP-2,eDP-1,KWIN_DRM_FORCE_PRIMARY_OUTPUT=DP-2";
-          InputMethod = "";
-        };
-        Theme = {
-          CursorTheme = "breeze_cursors";
-          CursorSize = 24;
-        };
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.niri}/bin/niri -c /etc/greetd/niri-greeter.kdl";
+        user = "greeter";
       };
     };
-    defaultSession = "niri";
   };
 
-  systemd.tmpfiles.rules = [
-    "L+ /run/current-system/sw/share/sddm/themes/sddm-astronaut-theme - - - - ${custom-astronaut}/share/sddm/themes/sddm-astronaut-theme"
-  ];
+  environment.etc."greetd/niri-greeter.kdl".text = ''
+    hotkey-overlay {
+      skip-at-startup
+    }
+
+    output "DP-2" {
+      mode "3840x2160@60"
+      scale 2.0
+      focus-at-startup
+    }
+
+    output "eDP-1" {
+      mode "1920x1200@60"
+      position x=0 y=2160
+    }
+
+    input {
+      keyboard {
+        xkb {
+          layout "us"
+        }
+      }
+      touchpad {
+        tap
+      }
+    }
+
+    layout {
+      gaps 0
+      center-focused-column "always"
+    }
+
+    cursor {
+      xcursor-theme "breeze_cursors"
+      xcursor-size 24
+    }
+
+    spawn-at-startup "${pkgs.regreet}/bin/regreet"
+
+    binds {
+      "Mod+Shift+E" { quit; }
+    }
+
+    window-rule {
+      match app-id="regreet"
+      open-floating true
+    }
+  '';
+
+  programs.regreet = {
+    enable = true;
+    settings = {
+      background = {
+        color = "#121212";
+        fit = "Cover";
+      };
+      GTK.application_prefer_dark_theme = true;
+    };
+    extraCss = ''
+      window {
+        background-color: #121212;
+      }
+
+      .main-window {
+        background-color: #1e1e1e;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      }
+
+      entry {
+        background-color: #2a2a2a;
+        color: #eeeeee;
+        border-radius: 4px;
+        border: 1px solid #444;
+      }
+    '';
+  };
+
+  users.extraUsers.greeter = {
+    extraGroups = [ "video" "input" "render" ];
+    home = "/tmp/greeter-home";
+    createHome = true;
+  };
 
   # Bluetooth
   hardware.bluetooth = {
@@ -442,6 +493,7 @@ in {
       sudo.fprintAuth = true; # Touch sensor for sudo!
       login.fprintAuth = false; # Touch sensor for login!
       swaylock.fprintAuth = false; # for future (sway is not enabled yet)
+      greetd.fprintAuth = false;
     };
     polkit = {
       enable = true;
