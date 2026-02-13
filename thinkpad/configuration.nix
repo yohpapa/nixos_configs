@@ -14,14 +14,12 @@ in {
   boot = {
     loader = {
       efi.canTouchEfiVariables = true;
-      grub = {
+      systemd-boot = {
         enable = true;
-        efiSupport = true;
-        device = "nodev";
-        useOSProber = true;
         configurationLimit = systemSettings.maxBackups;
+        consoleMode = "max";
       };
-      systemd-boot.enable = false;
+      grub.enable = false;
     };
 
     kernelParams = [
@@ -31,6 +29,8 @@ in {
       "amdgpu.sg_display=0"
       "amdgpu.dcdebugmask=0x10"
       "thinkpad_acpi.fan_control=1"
+      "video=DP-2:3840x2160"
+      "video=eDP-1:1920x1200"
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
@@ -219,6 +219,11 @@ in {
   };
 
   services.udev.extraRules = ''
+    # Force input devices to be owned by the 'input' group and be readable
+    KERNEL=="uinput", GROUP="input", MODE="0660"
+    KERNEL=="event*", GROUP="input", MODE="0660"
+    SUBSYSTEM=="backlight", GROUP="video", MODE="0664"
+
     # When the Realforce is unplugged, restart xremap to fall back to the internal keyboard
     ACTION=="remove", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", RUN+="${pkgs.systemd}/bin/systemctl restart xremap.service"
 
@@ -236,11 +241,11 @@ in {
     ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", \
     RUN+="${pkgs.bash}/bin/bash -c 'if ${pkgs.gnugrep}/bin/grep -q \"^connected$$\" /sys/class/drm/card1-DP-*/status; then \
       if [ -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/unbind; fi; \
-      ${pkgs.systemd}/bin/systemctl stop fprintd.service; \
-    else \
-      if [ ! -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/bind; fi; \
-      ${pkgs.systemd}/bin/systemctl start fprintd.service; \
-    fi'"
+        ${pkgs.systemd}/bin/systemctl stop fprintd.service; \
+      else \
+        if [ ! -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/bind; fi; \
+        ${pkgs.systemd}/bin/systemctl start fprintd.service; \
+      fi'"
   '';
 
   # Enable the OpenSSH daemon.
@@ -520,7 +525,6 @@ in {
 
   # Other services
   services = {
-    dbus.enable = true;
     tailscale.enable = true;
     udisks2.enable = true;
   };
@@ -531,6 +535,21 @@ in {
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.kanshi}/bin/kanshi";
+      Restart = "always";
+    };
+  };
+
+  services.dbus = {
+    enable = true;
+    packages = [ pkgs.swayosd ];
+  };
+
+  systemd.user.services.swayosd = {
+    description = "SwayOSD Display Service";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.swayosd}/bin/swayosd-server";
       Restart = "always";
     };
   };
