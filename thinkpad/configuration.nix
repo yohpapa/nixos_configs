@@ -23,7 +23,7 @@ in {
     };
 
     kernelParams = [
-      "usbcore.autosuspend=-1"
+      # "usbcore.autosuspend=-1"
       "usbcore.quirks=0853:0145:k"
       "amd_pstate=active"
       "amdgpu.sg_display=0"
@@ -31,11 +31,27 @@ in {
       "thinkpad_acpi.fan_control=1"
       "video=DP-2:3840x2160"
       "video=eDP-1:1920x1200"
+      "resume=/dev/mapper/luks-46890fa7-417b-4e2f-9729-4b806f650218"
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "uinput" ];
-    initrd.kernelModules = [ "amdgpu" ];
+    initrd = {
+      kernelModules = [ "amdgpu" ];
+      luks.devices = {
+        "luks-83660011-664a-4324-bf88-9c0628f375ba".device =
+          "/dev/disk/by-uuid/83660011-664a-4324-bf88-9c0628f375ba";
+        "luks-46890fa7-417b-4e2f-9729-4b806f650218" = {
+          device = "/dev/disk/by-uuid/46890fa7-417b-4e2f-9729-4b806f650218";
+          keyFile = "/etc/secrets/initrd-keyfile";
+        };
+      };
+      secrets = {
+        "/etc/secrets/initrd-keyfile" = "/etc/secrets/initrd-keyfile";
+      };
+    };
+
+    resumeDevice = "/dev/mapper/luks-46890fa7-417b-4e2f-9729-4b806f650218";
   };
 
   console = {
@@ -141,7 +157,6 @@ in {
     firefoxpwa
     grim
     hyprland
-    hyprlock
     gdk-pixbuf
     ghostty
     imagemagick
@@ -156,6 +171,8 @@ in {
     (rofi.override { plugins = [ rofi-emoji rofi-calc ]; })
     slurp
     swappy
+    swayidle
+    swaylock
     swayosd
     swww
     tailscale-systray
@@ -246,6 +263,9 @@ in {
         if [ ! -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/bind; fi; \
         ${pkgs.systemd}/bin/systemctl start fprintd.service; \
       fi'"
+
+    # Configure screen locking and suspension
+    SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-5]", RUN+="${pkgs.systemd}/bin/systemctl hibernate"
   '';
 
   # Enable the OpenSSH daemon.
@@ -427,6 +447,9 @@ in {
 
   hardware.uinput.enable = true;
 
+  hardware.cpu.amd.updateMicrocode = true;
+  hardware.enableRedistributableFirmware = true;
+
   # Font settings https://nixos.wiki/wiki/Fonts
   fonts.packages = with pkgs; [
     noto-fonts
@@ -478,17 +501,19 @@ in {
       CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
       START_CHARGE_THRESH_BAT0 = 40;
       STOP_CHARGE_THRESH_BAT0 = 80; # Stop at 80% to extend battery life
+      WIFI_PWR_ON_BAT = "on";
+      USB_AUTOSUSPEND_DEVICE_DENYLIST = "0853:0145";
     };
   };
   services.power-profiles-daemon.enable = false;
 
   # Headless/SSH Mode: Don't sleep when the lid is closed
-  services.logind.settings = {
-    Login = {
-      HandleLidSwitch = "ignore";
-      HandleLidSwitchExternalPower = "ignore";
-      HandleLidSwitchDocked = "ignore";
-    };
+  services.logind.settings.Login = {
+    IdleAction = "suspend-then-hibernate";
+    IdleActionSec = "30min";
+    HandleLidSwitchDocked = "ignore";
+    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitch = "suspend-then-hibernate";
   };
 
   # Fingerprint Sensor (Synaptics 06cb:00f9)
@@ -553,6 +578,8 @@ in {
       Restart = "always";
     };
   };
+
+  systemd.sleep.extraConfig = "HibernateDelaySec=7200";
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
