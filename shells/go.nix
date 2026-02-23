@@ -25,6 +25,9 @@ pkgs.mkShell {
     air # live reload
     sqldef # or go-migrate for DB migrations
 
+    # Database
+    mariadb
+
     # Shell tools
     zsh
     figlet
@@ -37,3 +40,4 @@ pkgs.mkShell {
     exec zsh
   '';
 }
+
