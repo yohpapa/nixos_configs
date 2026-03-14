@@ -115,6 +115,7 @@ in {
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     # CLI tools
+    alsa-utils
     bat
     btop
     cargo
@@ -573,9 +574,11 @@ in {
     description = "SwayOSD Display Service";
     wantedBy = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.swayosd}/bin/swayosd-server";
-      Restart = "always";
+      Restart = "on-failure";
+      RestartSec = "5";
     };
   };
 
