@@ -23,14 +23,11 @@ in {
     };
 
     kernelParams = [
-      # "usbcore.autosuspend=-1"
       "usbcore.quirks=0853:0145:k"
       "amd_pstate=active"
       "amdgpu.sg_display=0"
-      "amdgpu.dcdebugmask=0x10"
+      "amdgpu.psr=0"
       "thinkpad_acpi.fan_control=1"
-      "video=DP-2:3840x2160"
-      "video=eDP-1:1920x1200"
       "resume=/dev/mapper/luks-46890fa7-417b-4e2f-9729-4b806f650218"
     ];
 
