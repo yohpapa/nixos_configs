@@ -341,7 +341,7 @@ in {
       skip-at-startup
     }
 
-    output "DP-2" {
+    output "Eizo Nanao Corporation EV3240X 24091073" {
       mode "3840x2160@60"
       scale 2.0
       focus-at-startup
@@ -380,8 +380,9 @@ in {
     }
 
     window-rule {
-      match app-id="regreet"
+      match app-id="re.greet.ReGreet"
       open-floating true
+      open-maximized false
     }
   '';
 
@@ -580,6 +581,29 @@ in {
   };
 
   systemd.sleep.extraConfig = "HibernateDelaySec=7200";
+
+  services.acpid.enable = true;
+
+  services.acpid.handlers.lid-close = {
+    event = "button/lid LID close";
+    action = ''
+      export WAYLAND_DISPLAY=wayland-1
+      export XDG_RUNTIME_DIR=/run/user/$(id -u kensuke)
+      if ${pkgs.niri}/bin/niri msg outputs 2>/dev/null | grep -q "Eizo"; then
+        ${pkgs.niri}/bin/niri msg output eDP-1 off
+        /home/kensuke/.config/scripts/migrate-workspaces.sh
+      fi
+    '';
+  };
+
+  services.acpid.handlers.lid-open = {
+    event = "button/lid LID open";
+    action = ''
+      export WAYLAND_DISPLAY=wayland-1
+      export XDG_RUNTIME_DIR=/run/user/$(id -u kensuke)
+      ${pkgs.niri}/bin/niri msg output eDP-1 on
+    '';
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
