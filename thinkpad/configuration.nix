@@ -216,6 +216,7 @@ in {
     package = pkgs.xremap;
     watch = true;
     userName = userSettings.username;
+    withWlroots = true;
     deviceNames = [
       "Topre REALFORCE 87 US"
       "Topre REALFORCE 87 US Keyboard"
@@ -279,7 +280,14 @@ in {
     };
     pulse.enable = true;
     jack.enable = true;
-    wireplumber.enable = true;
+    wireplumber = {
+      enable = true;
+      extraConfig = {
+        "10-default-sink" = {
+          "wireplumber.settings" = { "default-sink.follow-node" = true; };
+        };
+      };
+    };
   };
 
   # Wayland compositor settings
@@ -577,6 +585,17 @@ in {
       ExecStart = "${pkgs.swayosd}/bin/swayosd-server";
       Restart = "on-failure";
       RestartSec = "5";
+    };
+  };
+
+  systemd.services.swayosd-resume = {
+    description = "Restart SwayOSD after resume";
+    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart =
+        "/run/current-system/sw/bin/systemctl --user -M ${userSettings.username}@ restart swayosd";
     };
   };
 
