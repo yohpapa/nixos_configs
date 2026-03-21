@@ -13,6 +13,10 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernel.sysctl = {
+    "net.ipv6.conf.all.forwarding" = 1;
+    "net.ipv6.conf.eno1.accept_ra" = 2;
+  };
 
   # networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -98,7 +102,7 @@
   system.stateVersion = "25.11"; # Did you read the comment?
 
   # GPU Drivers & Early Boot
-  boot.initrd.kernelModules = [ "amdgpu" ];
+  boot.initrd.kernelModules = [ "amdgpu" "iptable_filter" "iptable_nat" "ip6table_filter" "ip6table_nat" "ip6table_mangle" ];
   services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Custom NixOS configurations
@@ -110,6 +114,8 @@
     pciutils
     docker-compose
     vulkan-tools
+    openssl
+    curl
   ];
 
   # Fix LAN issue
@@ -153,22 +159,57 @@
   };
 
   # Enable Docker
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    daemon.settings = {
+      ipv6 = true;
+      "fixed-cidr-v6" = "fd00::/80";
+      "ip6tables" = true;
+    };
+  };
 
   # Networking
   networking = {
     hostName = "homelab";
     useDHCP = false;
+    enableIPv6 = true;
     interfaces.eno1 = {
       useDHCP = false;
       ipv4.addresses = [{
-        address = "192.168.1.100";
+        address = "192.168.0.100";
         prefixLength = 24;
       }];
+      ipv6.addresses = [];
     };
-    defaultGateway = "192.168.1.1";
-    nameservers = [ "8.8.8.8" "1.1.1.1" ];
-    extraHosts = "129.168.1.100 homelab";
+    defaultGateway = "192.168.0.1";
+    nameservers = [ "1.1.1.1" "8.8.8.8" ];
+    extraHosts = "192.168.0.100 homelab";
+
+    firewall = {
+      allowedTCPPorts = [ 53 80 443 853 3000 ];
+      allowedUDPPorts = [ 53 443 853 ];
+      trustedInterfaces = [ "tailscale0" ];
+      checkReversePath = "loose";
+      # extraCommands = ''
+      #   ip6tables -I FORWARD 1 -s fd00:db8:1::/64 -j ACCEPT || true
+      #   ip6tables -I FORWARD 2 -d fd00:db8:1::/64 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT || true
+      # '';
+    };
+  };
+
+  systemd.services.ip6tables-docker = {
+    description = "IPv6 forwarding rules for Docker";
+    after = [ "docker.service" "network-online.target" ];
+    requires = [ "docker.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "ip6tables-docker" ''
+        ${pkgs.iptables}/bin/ip6tables -I FORWARD 1 -s fd00:db8:1::/64 -j ACCEPT || true
+        ${pkgs.iptables}/bin/ip6tables -I FORWARD 2 -d fd00:db8:1::/64 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT || true
+      '';
+    };
   };
 
   # House-keeping
