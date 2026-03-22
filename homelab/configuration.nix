@@ -190,10 +190,6 @@
       allowedUDPPorts = [ 53 443 853 ];
       trustedInterfaces = [ "tailscale0" ];
       checkReversePath = "loose";
-      # extraCommands = ''
-      #   ip6tables -I FORWARD 1 -s fd00:db8:1::/64 -j ACCEPT || true
-      #   ip6tables -I FORWARD 2 -d fd00:db8:1::/64 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT || true
-      # '';
     };
   };
 
@@ -206,8 +202,8 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "ip6tables-docker" ''
-        ${pkgs.iptables}/bin/ip6tables -I FORWARD 1 -s fd00:db8:1::/64 -j ACCEPT || true
-        ${pkgs.iptables}/bin/ip6tables -I FORWARD 2 -d fd00:db8:1::/64 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT || true
+        ${pkgs.iptables}/bin/ip6tables -I FORWARD 1 -s fd00:db8::/48 -j ACCEPT || true
+        ${pkgs.iptables}/bin/ip6tables -I FORWARD 2 -d fd00:db8::/48 -j ACCEPT || true
       '';
     };
   };
