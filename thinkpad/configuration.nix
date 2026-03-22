@@ -555,11 +555,14 @@ in {
     mouse.accelProfile = "flat";
   };
 
-  # Other services
-  services = {
-    tailscale.enable = true;
-    udisks2.enable = true;
+  # Tailscale
+  services.tailscale = {
+    enable = true;
+    operatorUser = "${userSettings.username}";
   };
+
+  # Other services
+  services = { udisks2.enable = true; };
 
   systemd.user.services.kanshi = {
     description = "Kanshi output autoconfig ";
