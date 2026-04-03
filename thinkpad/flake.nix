@@ -7,9 +7,13 @@
     ghostty.url = "github:ghostty-org/ghostty";
     neovim-pkgs.url =
       "github:nixos/nixpkgs/bce5fe2bb998488d8e7e7856315f90496723793c";
+    ollama-pkgs.url =
+      "github:nixos/nixpkgs/77ce3bdd5574d4a0e789db372ef14c47f00a6180";
+    llmls-pkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
   };
 
-  outputs = { nixpkgs, xremap, ghostty, neovim-pkgs, ... }:
+  outputs =
+    { nixpkgs, xremap, ghostty, neovim-pkgs, ollama-pkgs, llmls-pkgs, ... }:
     let
       systemSettings = {
         system = "x86_64-linux";
@@ -33,6 +37,8 @@
           inherit userSettings;
           neovim-pkgs = import neovim-pkgs { system = systemSettings.system; };
           ghostty = ghostty.packages.${systemSettings.system}.default;
+          ollama-pkgs = import ollama-pkgs { system = systemSettings.system; };
+          llmls-pkgs = import llmls-pkgs { system = systemSettings.system; };
         };
       };
     };

@@ -5,8 +5,14 @@
 #  \__|_| |_|_|_| |_|_|\_\ .__/ \__,_|\__,_/_/ \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_(_)_| |_|_/_/\_\
 #                        |_|                                         |___/
 
-{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty, ... }:
-let neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
+, ollama-pkgs, llmls-pkgs, ... }:
+let
+  neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
+  ollama-rocm-override = final: prev: {
+    ollama-rocm = ollama-pkgs.ollama-rocm;
+  };
+  llmls-override = final: prev: { llm-ls = llmls-pkgs.llm-ls; };
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -32,7 +38,7 @@ in {
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "uinput" ];
+    kernelModules = [ "uinput" "amdxdna" "iommu=pt" ];
     initrd = {
       kernelModules = [ "amdgpu" ];
       luks.devices = {
@@ -59,14 +65,18 @@ in {
   };
 
   # Network settings
-  networking.hostName = systemSettings.hostname;
-  networking.wireless.enable =
-    true; # Enables wireless support via wpa_supplicant.
+  networking = {
+    hostName = systemSettings.hostname;
+    wireless.enable = true; # Enables wireless support via wpa_supplicant.
 
-  # Network manager
-  networking.networkmanager = {
-    enable = true;
-    wifi.powersave = false;
+    # Network manager
+    networkmanager = {
+      enable = true;
+      wifi.powersave = false;
+    };
+
+    # For Tailscale direct comms
+    firewall.allowedUDPPorts = [ 41642 ];
   };
 
   # Time zone.
@@ -106,7 +116,7 @@ in {
   hardware.enableAllFirmware = true;
 
   # Neovim overlay
-  nixpkgs.overlays = [ neovim-override ];
+  nixpkgs.overlays = [ neovim-override ollama-rocm-override llmls-override ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -117,6 +127,7 @@ in {
     btop
     cargo
     clang
+    claude-code
     dysk
     eza
     fastfetch
@@ -130,13 +141,17 @@ in {
     kanshi
     killall
     lazygit
+    llm-ls
     lshw
     neovim
     nmap
     nodePackages.npm
+    ollama-rocm
     pciutils
     pokeget-rs
     ripgrep
+    rocmPackages.rocminfo
+    rocmPackages.rocm-smi
     starship
     tmux
     stow
@@ -150,6 +165,7 @@ in {
     # GUI tools
     alacritty
     brightnessctl
+    chromium # Only for LINE
     cliphist
     dconf
     firefoxpwa
@@ -452,10 +468,13 @@ in {
     ];
   };
 
-  hardware.uinput.enable = true;
-
-  hardware.cpu.amd.updateMicrocode = true;
-  hardware.enableRedistributableFirmware = true;
+  # Other hardware configs
+  hardware = {
+    enableRedistributableFirmware = true;
+    uinput.enable = true;
+    cpu.amd.updateMicrocode = true;
+    firmware = with pkgs; [ linux-firmware ];
+  };
 
   # Font settings https://nixos.wiki/wiki/Fonts
   fonts.packages = with pkgs; [
@@ -558,12 +577,13 @@ in {
   # Tailscale
   services.tailscale = {
     enable = true;
-    operatorUser = "${userSettings.username}";
+    port = 41642;
   };
 
-  # Other services
-  services = { udisks2.enable = true; };
+  # Disk mount detection
+  services.udisks2.enable = true;
 
+  # Lid open-close detection
   systemd.user.services.kanshi = {
     description = "Kanshi output autoconfig ";
     wantedBy = [ "graphical-session.target" ];
@@ -574,6 +594,7 @@ in {
     };
   };
 
+  # swayosd
   services.dbus = {
     enable = true;
     packages = [ pkgs.swayosd ];
@@ -602,6 +623,7 @@ in {
     };
   };
 
+  # Low power-consumption configs
   systemd.sleep.extraConfig = "HibernateDelaySec=7200";
 
   services.acpid.enable = true;
@@ -625,6 +647,16 @@ in {
       export XDG_RUNTIME_DIR=/run/user/$(id -u kensuke)
       ${pkgs.niri}/bin/niri msg output eDP-1 on
     '';
+  };
+
+  # Local AI
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-rocm;
+    environmentVariables = {
+      HSA_OVERRIDE_GFX_VERSION = "11.5.1";
+      ROCR_VISIBLE_DEVICES = "0";
+    };
   };
 
   # Open ports in the firewall.

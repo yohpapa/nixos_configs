@@ -112,6 +112,22 @@
         "type": "github"
       }
     },
+    "llmls-pkgs": {
+      "locked": {
+        "lastModified": 1775002709,
+        "narHash": "sha256-d3Yx83vSrN+2z/loBh4mJpyRqr9aAJqlke4TkpFmRJA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "bcd464ccd2a1a7cd09aa2f8d4ffba83b761b1d0e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "neovim-pkgs": {
       "locked": {
         "lastModified": 1759826507,
@@ -188,11 +204,29 @@
         "type": "github"
       }
     },
+    "ollama-pkgs": {
+      "locked": {
+        "lastModified": 1775130113,
+        "narHash": "sha256-rpTFswkpfPV7RWJb8ghNhBGLP3Ja3cicjhDrsuGEew4=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "77ce3bdd5574d4a0e789db372ef14c47f00a6180",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "77ce3bdd5574d4a0e789db372ef14c47f00a6180",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "ghostty": "ghostty",
+        "llmls-pkgs": "llmls-pkgs",
         "neovim-pkgs": "neovim-pkgs",
         "nixpkgs": "nixpkgs_2",
+        "ollama-pkgs": "ollama-pkgs",
         "xremap": "xremap"
       }
     },
