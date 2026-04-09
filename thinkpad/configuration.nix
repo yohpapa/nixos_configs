@@ -6,12 +6,10 @@
 #                        |_|                                         |___/
 
 { config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
-, ollama-pkgs, llmls-pkgs, ... }:
+, llmls-pkgs, ... }:
 let
   neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
-  ollama-rocm-override = final: prev: {
-    ollama-rocm = ollama-pkgs.ollama-rocm;
-  };
+  ollama-override = import ./ollama.nix;
   llmls-override = final: prev: { llm-ls = llmls-pkgs.llm-ls; };
 in {
   imports = [ ./hardware-configuration.nix ];
@@ -116,7 +114,7 @@ in {
   hardware.enableAllFirmware = true;
 
   # Neovim overlay
-  nixpkgs.overlays = [ neovim-override ollama-rocm-override llmls-override ];
+  nixpkgs.overlays = [ neovim-override ollama-override llmls-override ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -657,6 +655,16 @@ in {
       HSA_OVERRIDE_GFX_VERSION = "11.5.1";
       ROCR_VISIBLE_DEVICES = "0";
     };
+  };
+
+  # Syncthing
+  services.syncthing = {
+    enable = true;
+    user = userSettings.username;
+    dataDir = "/home/kensuke/nexus/syncthing";
+    guiAddress = "127.0.0.1:8384";
+    overrideDevices = true;
+    overrideFolders = true;
   };
 
   # Open ports in the firewall.

@@ -204,29 +204,12 @@
         "type": "github"
       }
     },
-    "ollama-pkgs": {
-      "locked": {
-        "lastModified": 1775130113,
-        "narHash": "sha256-rpTFswkpfPV7RWJb8ghNhBGLP3Ja3cicjhDrsuGEew4=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "77ce3bdd5574d4a0e789db372ef14c47f00a6180",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "77ce3bdd5574d4a0e789db372ef14c47f00a6180",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "ghostty": "ghostty",
         "llmls-pkgs": "llmls-pkgs",
         "neovim-pkgs": "neovim-pkgs",
         "nixpkgs": "nixpkgs_2",
-        "ollama-pkgs": "ollama-pkgs",
         "xremap": "xremap"
       }
     },
