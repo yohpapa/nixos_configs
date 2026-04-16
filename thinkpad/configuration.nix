@@ -6,11 +6,17 @@
 #                        |_|                                         |___/
 
 { config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
-, llmls-pkgs, ... }:
+, llmls-pkgs, nixpkgs-master, ... }:
 let
   neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
-  ollama-override = import ./ollama.nix;
   llmls-override = final: prev: { llm-ls = llmls-pkgs.llm-ls; };
+  ai-override = final: prev: {
+    ollama = nixpkgs-master.ollama;
+    ollama-rocm = nixpkgs-master.ollama-rocm;
+    opencode = nixpkgs-master.opencode;
+    opencode-desktop = nixpkgs-master.opencode-desktop;
+    forgejo-mcp = nixpkgs-master.forgejo-mcp;
+  };
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -33,6 +39,9 @@ in {
       "amdgpu.psr=0"
       "thinkpad_acpi.fan_control=1"
       "resume=/dev/mapper/luks-46890fa7-417b-4e2f-9729-4b806f650218"
+      "amdgpu.gttsize=16384"
+      "amdgpu.mes=0"
+      "amdgpu.runpm=0"
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
@@ -114,7 +123,7 @@ in {
   hardware.enableAllFirmware = true;
 
   # Neovim overlay
-  nixpkgs.overlays = [ neovim-override ollama-override llmls-override ];
+  nixpkgs.overlays = [ neovim-override llmls-override ai-override ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -126,11 +135,13 @@ in {
     cargo
     clang
     claude-code
+    delta
     dysk
     eza
     fastfetch
     fd
     figlet
+    forgejo-mcp
     fzf
     git
     gnumake
@@ -145,6 +156,8 @@ in {
     nmap
     nodePackages.npm
     ollama-rocm
+    opencode
+    opencode-desktop
     pciutils
     pokeget-rs
     ripgrep
@@ -653,7 +666,13 @@ in {
     package = pkgs.ollama-rocm;
     environmentVariables = {
       HSA_OVERRIDE_GFX_VERSION = "11.5.1";
+      HSA_ENABLE_SDMA = "0";
       ROCR_VISIBLE_DEVICES = "0";
+      OLLAMA_MAX_VRAM = "16106127360";
+      OLLAMA_GPU_OVERHEAD = "0";
+      OLLAMA_NUM_CTX = "8192";
+      OLLAMA_FLASH_ATTENTION = "1";
+      OLLAMA_KEEP_ALIVE = "5m";
     };
   };
 

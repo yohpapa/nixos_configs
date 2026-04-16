@@ -8,9 +8,11 @@
     neovim-pkgs.url =
       "github:nixos/nixpkgs/bce5fe2bb998488d8e7e7856315f90496723793c";
     llmls-pkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
   };
 
-  outputs = { nixpkgs, xremap, ghostty, neovim-pkgs, llmls-pkgs, ... }:
+  outputs =
+    { nixpkgs, xremap, ghostty, neovim-pkgs, llmls-pkgs, nixpkgs-master, ... }:
     let
       systemSettings = {
         system = "x86_64-linux";
@@ -35,6 +37,8 @@
           neovim-pkgs = import neovim-pkgs { system = systemSettings.system; };
           ghostty = ghostty.packages.${systemSettings.system}.default;
           llmls-pkgs = import llmls-pkgs { system = systemSettings.system; };
+          nixpkgs-master =
+            import nixpkgs-master { system = systemSettings.system; };
         };
       };
     };
