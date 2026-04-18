@@ -5,8 +5,18 @@
 #  \__|_| |_|_|_| |_|_|\_\ .__/ \__,_|\__,_/_/ \___\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_(_)_| |_|_/_/\_\
 #                        |_|                                         |___/
 
-{ config, lib, pkgs, systemSettings, userSettings, neovim-pkgs, ghostty
-, llmls-pkgs, nixpkgs-master, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  systemSettings,
+  userSettings,
+  neovim-pkgs,
+  ghostty,
+  llmls-pkgs,
+  nixpkgs-master,
+  ...
+}:
 let
   neovim-override = final: prev: { neovim = neovim-pkgs.neovim; };
   llmls-override = final: prev: { llm-ls = llmls-pkgs.llm-ls; };
@@ -17,7 +27,8 @@ let
     opencode-desktop = nixpkgs-master.opencode-desktop;
     forgejo-mcp = nixpkgs-master.forgejo-mcp;
   };
-in {
+in
+{
   imports = [ ./hardware-configuration.nix ];
 
   # Bootloader
@@ -45,7 +56,11 @@ in {
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "uinput" "amdxdna" "iommu=pt" ];
+    kernelModules = [
+      "uinput"
+      "amdxdna"
+      "iommu=pt"
+    ];
     initrd = {
       kernelModules = [ "amdgpu" ];
       luks.devices = {
@@ -115,7 +130,14 @@ in {
   users.users.${userSettings.username} = {
     isNormalUser = true;
     description = userSettings.name;
-    extraGroups = [ "networkmanager" "wheel" "input" "video" "audio" "render" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "input"
+      "video"
+      "audio"
+      "render"
+    ];
   };
 
   # Allow proprietary firmware for Wi-Fi 7 and AMD Bluetooth
@@ -123,7 +145,11 @@ in {
   hardware.enableAllFirmware = true;
 
   # Neovim overlay
-  nixpkgs.overlays = [ neovim-override llmls-override ai-override ];
+  nixpkgs.overlays = [
+    neovim-override
+    llmls-override
+    ai-override
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -150,7 +176,6 @@ in {
     kanshi
     killall
     lazygit
-    llm-ls
     lshw
     neovim
     nmap
@@ -166,7 +191,6 @@ in {
     starship
     tmux
     stow
-    stylua
     unzip
     usbutils
     vim
@@ -176,7 +200,6 @@ in {
     # GUI tools
     alacritty
     brightnessctl
-    chromium # Only for LINE
     cliphist
     dconf
     firefoxpwa
@@ -193,7 +216,12 @@ in {
     niri
     pavucontrol
     pywal16
-    (rofi.override { plugins = [ rofi-emoji rofi-calc ]; })
+    (rofi.override {
+      plugins = [
+        rofi-emoji
+        rofi-calc
+      ];
+    })
     slurp
     swappy
     swayidle
@@ -205,6 +233,23 @@ in {
     xwayland-satellite
     waybar
     wl-clipboard
+
+    # LSP
+    bash-language-server
+    llm-ls
+    lua-language-server
+    marksman
+    nil
+    nodePackages.yaml-language-server
+    nodePackages.vscode-langservers-extracted
+    shellcheck
+    taplo
+
+    # Formatter
+    nixfmt-rfc-style
+    nodePackages.prettier
+    shfmt
+    stylua
   ];
 
   # House-keeping
@@ -219,7 +264,10 @@ in {
     };
 
     settings = {
-      experimental-features = [ "nix-command" "flakes" ]; # enable flakes
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ]; # enable flakes
       auto-optimise-store = true; # optimize the store in every build.
     };
 
@@ -250,14 +298,16 @@ in {
       "AT Translated Set 2 keyboard"
     ];
     config = {
-      modmap = [{
-        name = "Global";
-        remap = {
-          "CapsLock" = "Control_L";
-          "Control_L" = "Alt_L";
-          "Alt_L" = "SUPER_L";
-        };
-      }];
+      modmap = [
+        {
+          name = "Global";
+          remap = {
+            "CapsLock" = "Control_L";
+            "Control_L" = "Alt_L";
+            "Alt_L" = "SUPER_L";
+          };
+        }
+      ];
     };
   };
 
@@ -311,7 +361,9 @@ in {
       enable = true;
       extraConfig = {
         "10-default-sink" = {
-          "wireplumber.settings" = { "default-sink.follow-node" = true; };
+          "wireplumber.settings" = {
+            "default-sink.follow-node" = true;
+          };
         };
       };
     };
@@ -453,7 +505,11 @@ in {
   };
 
   users.extraUsers.greeter = {
-    extraGroups = [ "video" "input" "render" ];
+    extraGroups = [
+      "video"
+      "input"
+      "render"
+    ];
     home = "/tmp/greeter-home";
     createHome = true;
   };
@@ -518,7 +574,10 @@ in {
   # https://nix.dev/guides/faq#how-to-run-non-nix-executables
   programs.nix-ld = {
     enable = true;
-    libraries = with pkgs; [ lua-language-server icu ];
+    libraries = with pkgs; [
+      lua-language-server
+      icu
+    ];
   };
 
   # Firefox
@@ -625,12 +684,19 @@ in {
 
   systemd.services.swayosd-resume = {
     description = "Restart SwayOSD after resume";
-    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
-    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    after = [
+      "suspend.target"
+      "hibernate.target"
+      "hybrid-sleep.target"
+    ];
+    wantedBy = [
+      "suspend.target"
+      "hibernate.target"
+      "hybrid-sleep.target"
+    ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart =
-        "/run/current-system/sw/bin/systemctl --user -M ${userSettings.username}@ restart swayosd";
+      ExecStart = "/run/current-system/sw/bin/systemctl --user -M ${userSettings.username}@ restart swayosd";
     };
   };
 
