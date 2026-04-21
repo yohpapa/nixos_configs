@@ -323,23 +323,6 @@ in
     # When the Realforce is plugged in, restart xremap to grab it
     ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="0853", ATTRS{idProduct}=="0145", RUN+="${pkgs.systemd}/bin/systemctl restart xremap.service"
 
-    # Trigger on DRM change for the Zen 5 GPU (card1)
-    #
-    # NOTE:
-    # Since the 3-4 USB path is tied to the physical internal wiring of the T14 Gen 5, it should remain consistent.
-    # However, if you ever perform a major BIOS/Firmware update and notice the automation stop working, just run
-    # grep -l "06cb" /sys/bus/usb/devices/*/idVendor
-    # again to see if the kernel re-indexed the port to something like 3-3 or 3-5.
-    #
-    ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", \
-    RUN+="${pkgs.bash}/bin/bash -c 'if ${pkgs.gnugrep}/bin/grep -q \"^connected$$\" /sys/class/drm/card1-DP-*/status; then \
-      if [ -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/unbind; fi; \
-        ${pkgs.systemd}/bin/systemctl stop fprintd.service; \
-      else \
-        if [ ! -d /sys/bus/usb/devices/3-4/driver ]; then echo \"3-4\" > /sys/bus/usb/drivers/usb/bind; fi; \
-        ${pkgs.systemd}/bin/systemctl start fprintd.service; \
-      fi'"
-
     # Configure screen locking and suspension
     SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-5]", RUN+="${pkgs.systemd}/bin/systemctl hibernate"
   '';
@@ -614,25 +597,17 @@ in
 
   # Fingerprint Sensor (Synaptics 06cb:00f9)
   services.fprintd.enable = true;
-  security = {
-    pam.services = {
-      sudo.fprintAuth = true; # Touch sensor for sudo!
-      login.fprintAuth = false; # Touch sensor for login!
-      swaylock.fprintAuth = false; # for future (sway is not enabled yet)
-      greetd.fprintAuth = false;
+  security.pam.services = {
+    sudo = {
+      fprintAuth = true;
+      rules.auth.fprintd.settings = {
+        timeout = 10;
+        max_tries = 1;
+      };
     };
-    polkit = {
-      enable = true;
-      extraConfig = ''
-              polkit.addRule(function(action, user) {
-          if (action.id == "org.freedesktop.systemd1.manage-units" &&
-              action.lookup("unit") == "fprintd.service" &&
-              user.isInGroup("wheel")) {
-            return polkit.Result.YES;
-          }
-        });
-      '';
-    };
+    login.fprintAuth = false;
+    swaylock.fprintAuth = false;
+    greetd.fprintAuth = false;
   };
 
   # Firmware Updates
