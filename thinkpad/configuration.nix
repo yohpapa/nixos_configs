@@ -24,7 +24,6 @@ let
     ollama = nixpkgs-master.ollama;
     ollama-rocm = nixpkgs-master.ollama-rocm;
     opencode = nixpkgs-master.opencode;
-    opencode-desktop = nixpkgs-master.opencode-desktop;
     forgejo-mcp = nixpkgs-master.forgejo-mcp;
   };
 in
@@ -137,6 +136,7 @@ in
       "video"
       "audio"
       "render"
+      "libvirtd"
     ];
   };
 
@@ -158,6 +158,7 @@ in
     alsa-utils
     bat
     btop
+    bun
     cargo
     clang
     claude-code
@@ -182,7 +183,6 @@ in
     nodePackages.npm
     ollama-rocm
     opencode
-    opencode-desktop
     pciutils
     pokeget-rs
     ripgrep
@@ -726,6 +726,10 @@ in
     overrideDevices = true;
     overrideFolders = true;
   };
+
+  # Virtualization
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

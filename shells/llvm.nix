@@ -21,6 +21,7 @@ mkShell {
     neocmakelsp
     figlet
     ninja
+    gtest
   ];
 
   shellHook = ''

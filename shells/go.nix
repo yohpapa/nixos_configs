@@ -5,7 +5,9 @@
 #  \__, |\___(_)_| |_|_/_/\_\
 #  |___/
 
-{ pkgs ? import <nixpkgs> { } }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
@@ -22,11 +24,11 @@ pkgs.mkShell {
     gofumpt
 
     # Backend Development
-    air # live reload
-    sqldef # or go-migrate for DB migrations
+    # air # live reload
+    # sqldef # or go-migrate for DB migrations
 
     # Database
-    mariadb
+    # mariadb
 
     # Shell tools
     zsh
@@ -40,4 +42,3 @@ pkgs.mkShell {
     exec zsh
   '';
 }
-
