@@ -45,20 +45,20 @@ in
     kernelParams = [
       "usbcore.quirks=0853:0145:k"
       "amd_pstate=active"
-      "amdgpu.sg_display=0"
+      # "amdgpu.sg_display=0"
       "amdgpu.psr=0"
       "thinkpad_acpi.fan_control=1"
       "resume=/dev/mapper/luks-46890fa7-417b-4e2f-9729-4b806f650218"
       "amdgpu.gttsize=16384"
-      "amdgpu.mes=0"
-      "amdgpu.runpm=0"
+      # "amdgpu.mes=0"
+      # "amdgpu.runpm=0"
+      "iommu=pt"
     ];
 
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [
       "uinput"
       "amdxdna"
-      "iommu=pt"
     ];
     initrd = {
       kernelModules = [ "amdgpu" ];
@@ -581,7 +581,8 @@ in
       START_CHARGE_THRESH_BAT0 = 40;
       STOP_CHARGE_THRESH_BAT0 = 80; # Stop at 80% to extend battery life
       WIFI_PWR_ON_BAT = "on";
-      USB_AUTOSUSPEND_DEVICE_DENYLIST = "0853:0145";
+      # USB_AUTOSUSPEND_DEVICE_DENYLIST = "0853:0145";
+      USB_AUTOSUSPEND = 0;
     };
   };
   services.power-profiles-daemon.enable = false;

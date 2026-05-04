@@ -22,6 +22,8 @@ mkShell {
     figlet
     ninja
     gtest
+    nlohmann_json
+    yaml-cpp
   ];
 
   shellHook = ''
