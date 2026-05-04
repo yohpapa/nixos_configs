@@ -597,10 +597,10 @@ in
   };
 
   # Fingerprint Sensor (Synaptics 06cb:00f9)
-  services.fprintd.enable = true;
+  services.fprintd.enable = false;
   security.pam.services = {
     sudo = {
-      fprintAuth = true;
+      fprintAuth = false;
       rules.auth.fprintd.settings = {
         timeout = 10;
         max_tries = 1;
